@@ -1,0 +1,57 @@
+@import 'leaflet/dist/leaflet.css';
+
+:root {
+  /* Restrained Scientific Color System */
+  --bg-sidebar: #0f291e;
+  --bg-sidebar-hover: #163c2c;
+  --bg-sidebar-active: #1d4d39;
+  --text-sidebar: #c2d6cb;
+  --text-sidebar-active: #ffffff;
+  
+  --bg-app: #f4f6f4;
+  --bg-card: #ffffff;
+  --border-color: #dbe4dd;
+  --border-color-dark: #cbd8cf;
+  
+  --primary-green: #1d5234;
+  --primary-green-light: #eef5f0;
+  --primary-green-border: #a8d3b8;
+  
+  --color-success: #27ae60;
+  --color-warning: #f39c12;
+  --color-danger: #d9534f;
+  --color-info: #2980b9;
+  
+  --text-primary: #1c2826;
+  --text-secondary: #4a5d54;
+  --text-muted: #72857b;
+  
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 2px 5px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+code, pre {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}

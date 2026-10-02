@@ -1,0 +1,183 @@
+import React from 'react';
+import { 
+  Map, 
+  Trees, 
+  Flame, 
+  BarChart3, 
+  Bell, 
+  Settings, 
+  Lock, 
+  Cpu, 
+  Database, 
+  Globe 
+} from 'lucide-react';
+
+interface StageCardProps {
+  stage: string;
+  title: string;
+  description: string;
+  items: string[];
+}
+
+const StageModuleCard: React.FC<StageCardProps> = ({ stage, title, description, items }) => (
+  <div className="module-stage-card">
+    <div className="stage-badge">{stage}</div>
+    <h4>{title}</h4>
+    <p>{description}</p>
+    <ul>
+      {items.map((item, idx) => (
+        <li key={idx}>✓ {item}</li>
+      ))}
+    </ul>
+  </div>
+);
+
+export const RiskMapPage: React.FC = () => (
+  <div className="page-container placeholder-page">
+    <div className="placeholder-hero">
+      <Map className="hero-icon" />
+      <h2>Dedicated Geospatial Risk Map Engine</h2>
+      <p className="hero-desc">
+        Full-screen interactive Leaflet map canvas with custom GeoJSON polygon layers, Sentinel-2 false-color composite toggles, and localized XGBoost risk heatmaps.
+      </p>
+      <div className="hero-status-tag">
+        <Lock className="tag-icon" /> Module Deferred to Stage 3 (Geospatial & Satellite Pipeline)
+      </div>
+    </div>
+
+    <div className="module-specs-grid">
+      <StageModuleCard
+        stage="STAGE 3"
+        title="Sentinel-2 Satellite Band Extraction"
+        description="Fetch Band 4 (Red), Band 8 (NIR), Band 11 (SWIR) via Google Earth Engine API."
+        items={["10m resolution raster ingestion", "Cloud masking using QA60 band", "Automatic bounding box clipping"]}
+      />
+      <StageModuleCard
+        stage="STAGE 4"
+        title="XGBoost Inference Overlay"
+        description="Generate localized risk scores [0.0 - 1.0] per 500m grid cell."
+        items={["Spatial GeoJSON polygon rendering", "Dynamic color gradient mapping", "Cell detail modal with index drilldown"]}
+      />
+      <StageModuleCard
+        stage="STAGE 5"
+        title="Weather Station GIS Interpolation"
+        description="Kriging & Inverse Distance Weighting (IDW) for temperature and humidity fields."
+        items={["Real-time OpenWeatherMap API", "Wind vector directional arrows", "Vapor pressure deficit (VPD) layer"]}
+      />
+    </div>
+  </div>
+);
+
+export const ForestHealthPage: React.FC = () => (
+  <div className="page-container placeholder-page">
+    <div className="placeholder-hero">
+      <Trees className="hero-icon" />
+      <h2>Forest Health & Spectral Index Analytics</h2>
+      <p className="hero-desc">
+        Scientific computation and visualization of remote-sensing indices: NDVI (Vegetation Vigor), NDMI (Canopy Moisture), and NBR (Normalized Burn Ratio).
+      </p>
+      <div className="hero-status-tag">
+        <Lock className="tag-icon" /> Spectral Formulas Ready for Python Service Integration
+      </div>
+    </div>
+
+    <div className="formula-cards-grid">
+      <div className="formula-card">
+        <span className="formula-tag">NDVI</span>
+        <h3>Normalized Difference Vegetation Index</h3>
+        <code className="formula-code">NDVI = (B8 - B4) / (B8 + B4)</code>
+        <p>Measures photosynthetic activity and canopy greenness. Values range from -1.0 to +1.0.</p>
+      </div>
+
+      <div className="formula-card">
+        <span className="formula-tag">NDMI</span>
+        <h3>Normalized Difference Moisture Index</h3>
+        <code className="formula-code">NDMI = (B8 - B11) / (B8 + B11)</code>
+        <p>Sensitive to canopy water content. Crucial for identifying severe vegetation drought stress.</p>
+      </div>
+
+      <div className="formula-card">
+        <span className="formula-tag">NBR</span>
+        <h3>Normalized Burn Ratio</h3>
+        <code className="formula-code">NBR = (B8 - B12) / (B8 + B12)</code>
+        <p>Used to highlight burned areas and estimate fire burn severity post-ignition.</p>
+      </div>
+    </div>
+  </div>
+);
+
+export const HistoricalFiresPage: React.FC = () => (
+  <div className="page-container placeholder-page">
+    <div className="placeholder-hero">
+      <Flame className="hero-icon" />
+      <h2>Historical Wildfire Catalog & Spatial Clusters</h2>
+      <p className="hero-desc">
+        Historical fire event dataset import (NASA FIRMS / VIIRS / MODIS thermal anomalies) for model training and historical ignition pattern analysis.
+      </p>
+      <div className="hero-status-tag">
+        <Database className="tag-icon" /> Dataset Storage Target: PostGIS & Pandas DataFrames
+      </div>
+    </div>
+  </div>
+);
+
+export const AnalyticsPage: React.FC = () => (
+  <div className="page-container placeholder-page">
+    <div className="placeholder-hero">
+      <BarChart3 className="hero-icon" />
+      <h2>Environmental Analytics & Correlation Engine</h2>
+      <p className="hero-desc">
+        Multi-variate scatter plots, correlation matrices (NDMI vs Temperature vs Burn Area), and feature importance charts generated by the XGBoost classifier.
+      </p>
+      <div className="hero-status-tag">
+        <Cpu className="tag-icon" /> Planned Libraries: Scikit-learn, XGBoost, Recharts
+      </div>
+    </div>
+  </div>
+);
+
+export const AlertsPage: React.FC = () => (
+  <div className="page-container placeholder-page">
+    <div className="placeholder-hero">
+      <Bell className="hero-icon" />
+      <h2>Wildfire Risk Alert & Dispatch Center</h2>
+      <p className="hero-desc">
+        Automated threshold alerts when high risk scores (&gt;0.75) coincide with high wind speeds (&gt;20 km/h) and low relative humidity (&lt;25%).
+      </p>
+      <div className="hero-status-tag">
+        <Globe className="tag-icon" /> Deferred to Stage 6 (Alert Engine & API Triggers)
+      </div>
+    </div>
+  </div>
+);
+
+export const SettingsPage: React.FC = () => (
+  <div className="page-container placeholder-page">
+    <div className="placeholder-hero">
+      <Settings className="hero-icon" />
+      <h2>ForestFusion System Configuration</h2>
+      <p className="hero-desc">
+        Configure backend API URLs, Sentinel-2 bounding box coordinates, XGBoost probability thresholds, and local dataset paths.
+      </p>
+      <div className="hero-status-tag">
+        <Lock className="tag-icon" /> Stage 1 System Settings Shell
+      </div>
+    </div>
+
+    <div className="settings-preview-card">
+      <h3>Active Prototype Configuration</h3>
+      <div className="setting-row">
+        <span>Backend API Base URL:</span>
+        <code>http://127.0.0.1:8000/api</code>
+      </div>
+      <div className="setting-row">
+        <span>Frontend Vite Proxy:</span>
+        <code>/api -&gt; http://127.0.0.1:8000</code>
+      </div>
+      <div className="setting-row">
+        <span>Current Execution Mode:</span>
+        <span className="badge-demo">Academic Stage 1 Prototype Shell</span>
+      </div>
+    </div>
+  </div>
+);
