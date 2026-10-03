@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
-import { Layers, MapPin, Layers3, AlertTriangle } from 'lucide-react';
-import { MonitoredZone } from '../types';
+import { MapPin, Layers3, AlertTriangle } from 'lucide-react';
+import type { MonitoredZone } from '../types';
 
 interface MapPanelProps {
   zones: MonitoredZone[];

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Search, Server, AlertTriangle } from 'lucide-react';
-import { HealthStatus, NavigationTab } from '../types';
+import type { HealthStatus, NavigationTab } from '../types';
 
 interface HeaderProps {
   activeTab: NavigationTab;

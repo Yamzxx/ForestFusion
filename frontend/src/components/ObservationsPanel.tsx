@@ -1,6 +1,6 @@
 import React from 'react';
 import { Activity, Clock, ShieldCheck } from 'lucide-react';
-import { RecentObservation } from '../types';
+import type { RecentObservation } from '../types';
 
 interface ObservationsPanelProps {
   observations: RecentObservation[];

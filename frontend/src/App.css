@@ -862,3 +862,204 @@
   padding: 2px 8px;
   border-radius: 4px;
 }
+
+/* Day 2 Dedicated Risk Map Page Styles */
+.risk-layer-empty-notice {
+  background-color: #fff7ed;
+  border: 1px solid #ffedd5;
+  border-left: 4px solid #ea580c;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-top: 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.risk-layer-empty-notice .notice-icon {
+  width: 20px;
+  height: 20px;
+  color: #ea580c;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.risk-layer-empty-notice strong {
+  font-size: 0.85rem;
+  color: #9a3412;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.risk-layer-empty-notice p {
+  font-size: 0.78rem;
+  color: #c2410c;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.notice-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background-color: #ffedd5;
+  color: #9a3412;
+  padding: 3px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  margin-left: auto;
+}
+
+.coordinate-inspection-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f8faf8;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-top: 14px;
+}
+
+.inspection-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inspection-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--primary-green);
+}
+
+.inspection-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-right: 8px;
+}
+
+.inspection-coords {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--primary-green);
+  background-color: #eef5f0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.inspection-placeholder {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.inspection-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.clear-selection-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #475569;
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.clear-selection-btn:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+.tile-provider-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #0369a1;
+  background-color: #e0f2fe;
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+.tile-provider-badge .badge-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.map-specifications-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 1100px) {
+  .map-specifications-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.spec-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: var(--shadow-card);
+}
+
+.spec-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.spec-icon {
+  width: 18px;
+  height: 18px;
+  color: #0284c7;
+}
+
+.spec-icon.green { color: #16a34a; }
+.spec-icon.amber { color: #d97706; }
+
+.spec-card h4 {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.spec-card p {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.spec-attribution {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.spec-list {
+  list-style: none;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+

@@ -11,7 +11,7 @@ import {
   Legend 
 } from 'recharts';
 import { Flame, AlertCircle } from 'lucide-react';
-import { HistoricalTrendPoint } from '../types';
+import type { HistoricalTrendPoint } from '../types';
 
 interface TrendChartProps {
   data: HistoricalTrendPoint[];

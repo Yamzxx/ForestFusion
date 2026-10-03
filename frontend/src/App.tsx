@@ -3,8 +3,8 @@ import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { DemoNoticeBanner } from './components/DemoNoticeBanner';
 import { OverviewPage } from './pages/OverviewPage';
+import { RiskMapPage } from './pages/RiskMapPage';
 import { 
-  RiskMapPage, 
   ForestHealthPage, 
   HistoricalFiresPage, 
   AnalyticsPage, 
@@ -12,7 +12,7 @@ import {
   SettingsPage 
 } from './pages/PlaceholderPages';
 import { fetchHealthStatus } from './services/apiService';
-import { NavigationTab, HealthStatus } from './types';
+import type { NavigationTab, HealthStatus } from './types';
 import './App.css';
 
 export function App() {

@@ -9,7 +9,7 @@ import {
   Settings, 
   ShieldAlert 
 } from 'lucide-react';
-import { NavigationTab } from '../types';
+import type { NavigationTab } from '../types';
 
 interface SidebarProps {
   activeTab: NavigationTab;

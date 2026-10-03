@@ -1,4 +1,4 @@
-import { HealthStatus, MonitoredZone, RecentObservation, HistoricalTrendPoint } from '../types';
+import type { HealthStatus, MonitoredZone, RecentObservation, HistoricalTrendPoint } from '../types';
 
 export const fetchHealthStatus = async (): Promise<HealthStatus | null> => {
   try {
