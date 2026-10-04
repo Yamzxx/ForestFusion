@@ -55,6 +55,32 @@ Day 2 adds a dedicated, full-screen interactive **Risk Map** component connected
 
 ---
 
+## 🌤️ Day 3 Feature: Real Weather Data Integration (Open-Meteo API)
+
+Day 3 connects live, real-time meteorological observations directly into the Overview Dashboard and Map components using the free, keyless **Open-Meteo API**:
+
+* **Live Open-Meteo Endpoints**:
+  * **Geocoding API**: `https://geocoding-api.open-meteo.com/v1/search` for real-time location name searching.
+  * **Forecast API**: `https://api.open-meteo.com/v1/forecast` for current weather observations.
+* **Location Search & Autocomplete**: Top search bar in the Header and Overview Dashboard allows searching any city or region worldwide. Includes input validation, 300ms query debouncing, and request cancellation (`AbortController`) to prevent outdated race conditions.
+* **Retrieved Weather Parameters (Metric Units)**:
+  * Air Temperature (`temperature_2m`, °C) and Apparent Temperature (`apparent_temperature`, °C)
+  * Relative Humidity (`relative_humidity_2m`, %)
+  * Wind Speed (`wind_speed_10m`, km/h) & Wind Direction (`wind_direction_10m`, ° compass direction)
+  * Precipitation (`precipitation`, mm)
+  * WMO Weather Code (`weather_code`) translated into human-readable conditions (e.g. *Mainly Clear*, *Overcast*, *Light Rain*)
+  * Day/Night state (`is_day`) and explicit API reported observation timestamp.
+* **Dashboard & Map Integration**:
+  * **Overview Dashboard**: Replaces mock weather card indicators with live Open-Meteo API values and adds a dedicated `WeatherDetailCard` with full metrics, timestamp, and retry controls.
+  * **Geospatial Map Panel**: Highlights the selected weather location pin marker (`[WEATHER OBSERVATION LOCATION (OPEN-METEO)]`) distinctly from officially monitored forest reference zones.
+* **Data Integrity & Attribution**:
+  * Displays explicit loading indicators, empty search result states, and API network error handling with retry functionality. No fabricated values are shown on failure.
+  * Clear attribution to Open-Meteo.
+  * Explicit disclaimer: *Current weather observations alone do not constitute a validated wildfire risk score until bound to Stage 4 ML model inference.*
+
+---
+
+
 ## 🛠️ Technology Stack
 
 | Layer | Technology |

@@ -4,9 +4,49 @@ import { MetricCard } from '../components/Card';
 import { MapPanel } from '../components/MapPanel';
 import { TrendChart } from '../components/TrendChart';
 import { ObservationsPanel } from '../components/ObservationsPanel';
+import { WeatherDetailCard } from '../components/WeatherDetailCard';
+import type { WeatherState, GeocodingLocation } from '../types/weather';
 import { DEMO_MONITORED_ZONES, DEMO_HISTORICAL_TREND, DEMO_RECENT_OBSERVATIONS } from '../services/apiService';
 
-export const OverviewPage: React.FC = () => {
+interface OverviewPageProps {
+  weatherState: WeatherState;
+  onRetryWeather: () => void;
+  onSelectLocation: (location: GeocodingLocation) => void;
+}
+
+export const OverviewPage: React.FC<OverviewPageProps> = ({
+  weatherState,
+  onRetryWeather,
+  onSelectLocation,
+}) => {
+  const { data, loading, error, selectedLocation } = weatherState;
+
+  // Format weather value string for MetricCard 3
+  const getWeatherCardValue = () => {
+    if (loading) return 'Loading...';
+    if (error || !data) return 'API Offline';
+    return `${data.current.temperature_2m.toFixed(1)}°C | ${data.current.relative_humidity_2m}% RH`;
+  };
+
+  const getWeatherCardSubtitle = () => {
+    if (loading) return `Fetching weather for ${selectedLocation.name}...`;
+    if (error) return error;
+    if (!data) return 'No live weather available';
+    return `${data.locationName}: Wind ${data.current.wind_speed_10m} km/h (${data.wmoDescription})`;
+  };
+
+  const getWeatherBadgeText = () => {
+    if (loading) return 'OPEN-METEO LOADING';
+    if (error) return 'OPEN-METEO ERROR';
+    return 'LIVE OPEN-METEO';
+  };
+
+  const getWeatherBadgeType = (): 'info' | 'warning' | 'success' | 'danger' => {
+    if (loading) return 'info';
+    if (error) return 'warning';
+    return 'success';
+  };
+
   return (
     <div className="page-container overview-page">
       {/* Top 4 Summary Cards */}
@@ -31,11 +71,11 @@ export const OverviewPage: React.FC = () => {
 
         <MetricCard
           title="WEATHER PARAMETERS"
-          value="31.5°C | 28% RH"
-          subtitle="Wind: 18 km/h | Dry season dry-spells"
+          value={getWeatherCardValue()}
+          subtitle={getWeatherCardSubtitle()}
           icon={<Thermometer className="metric-icon amber" />}
-          badgeText="DEMO WEATHER MOCK"
-          badgeType="warning"
+          badgeText={getWeatherBadgeText()}
+          badgeType={getWeatherBadgeType()}
         />
 
         <MetricCard
@@ -48,9 +88,22 @@ export const OverviewPage: React.FC = () => {
         />
       </div>
 
+      {/* Live Open-Meteo Weather Detailed Observations Section */}
+      <div className="section-row">
+        <WeatherDetailCard 
+          weatherState={weatherState} 
+          onRetry={onRetryWeather}
+          onSelectLocation={onSelectLocation}
+        />
+      </div>
+
       {/* Main Interactive Map Panel */}
       <div className="section-row">
-        <MapPanel zones={DEMO_MONITORED_ZONES} />
+        <MapPanel 
+          zones={DEMO_MONITORED_ZONES} 
+          selectedWeatherLocation={selectedLocation}
+          weatherData={data}
+        />
       </div>
 
       {/* Lower Section: Trend Chart + Observations */}
@@ -61,3 +114,4 @@ export const OverviewPage: React.FC = () => {
     </div>
   );
 };
+

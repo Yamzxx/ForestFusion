@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { DemoNoticeBanner } from './components/DemoNoticeBanner';
@@ -12,13 +12,68 @@ import {
   SettingsPage 
 } from './pages/PlaceholderPages';
 import { fetchHealthStatus } from './services/apiService';
-import type { NavigationTab, HealthStatus } from './types';
+import { fetchCurrentWeather, DEFAULT_WEATHER_LOCATION } from './services/weatherService';
+import type { NavigationTab, HealthStatus, GeocodingLocation, WeatherState } from './types';
 import './App.css';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<NavigationTab>('overview');
   const [healthStatus, setHealthStatus] = useState<HealthStatus | null>(null);
   const [healthLoading, setHealthLoading] = useState<boolean>(true);
+
+  // Day 3 Open-Meteo Real Weather Data State
+  const [selectedLocation, setSelectedLocation] = useState<GeocodingLocation>(DEFAULT_WEATHER_LOCATION);
+  const [weatherState, setWeatherState] = useState<WeatherState>({
+    data: null,
+    loading: true,
+    error: null,
+    selectedLocation: DEFAULT_WEATHER_LOCATION,
+  });
+
+  const weatherAbortControllerRef = useRef<AbortController | null>(null);
+
+  // Fetch live weather data whenever selectedLocation changes
+  const loadWeather = useCallback(async (location: GeocodingLocation, bypassCache = false) => {
+    if (weatherAbortControllerRef.current) {
+      weatherAbortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    weatherAbortControllerRef.current = controller;
+
+    setWeatherState((prev) => ({
+      ...prev,
+      loading: true,
+      error: null,
+      selectedLocation: location,
+    }));
+
+    try {
+      const data = await fetchCurrentWeather(location, controller.signal, bypassCache);
+      setWeatherState({
+        data,
+        loading: false,
+        error: null,
+        selectedLocation: location,
+      });
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        setWeatherState({
+          data: null,
+          loading: false,
+          error: err.message || 'Failed to fetch weather data from Open-Meteo API',
+          selectedLocation: location,
+        });
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    loadWeather(selectedLocation);
+  }, [selectedLocation, loadWeather]);
+
+  const handleRetryWeather = () => {
+    loadWeather(selectedLocation, true);
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -44,9 +99,20 @@ export function App() {
   const renderActivePage = () => {
     switch (activeTab) {
       case 'overview':
-        return <OverviewPage />;
+        return (
+          <OverviewPage 
+            weatherState={weatherState} 
+            onRetryWeather={handleRetryWeather}
+            onSelectLocation={setSelectedLocation}
+          />
+        );
       case 'risk-map':
-        return <RiskMapPage />;
+        return (
+          <RiskMapPage 
+            onSelectWeatherLocation={setSelectedLocation}
+            activeWeatherLocationName={selectedLocation.name}
+          />
+        );
       case 'forest-health':
         return <ForestHealthPage />;
       case 'historical-fires':
@@ -58,7 +124,13 @@ export function App() {
       case 'settings':
         return <SettingsPage />;
       default:
-        return <OverviewPage />;
+        return (
+          <OverviewPage 
+            weatherState={weatherState} 
+            onRetryWeather={handleRetryWeather}
+            onSelectLocation={setSelectedLocation}
+          />
+        );
     }
   };
 
@@ -73,7 +145,9 @@ export function App() {
         <Header 
           activeTab={activeTab} 
           healthStatus={healthStatus} 
-          healthLoading={healthLoading} 
+          healthLoading={healthLoading}
+          onSelectLocation={setSelectedLocation}
+          selectedLocationName={selectedLocation.name}
         />
 
         {/* Demo Disclaimer Banner */}
@@ -89,3 +163,4 @@ export function App() {
 }
 
 export default App;
+

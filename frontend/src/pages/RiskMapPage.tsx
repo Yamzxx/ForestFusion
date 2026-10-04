@@ -94,7 +94,110 @@ const TILE_PROVIDERS: Record<TileProviderKey, TileProviderInfo> = {
   }
 };
 
-export const RiskMapPage: React.FC = () => {
+import React, { useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import { 
+  Layers3, 
+  AlertTriangle, 
+  Globe, 
+  Crosshair, 
+  RotateCcw,
+  CheckCircle2,
+  Lock,
+  CloudSun
+} from 'lucide-react';
+import type { MonitoredZone } from '../types';
+import type { GeocodingLocation } from '../types/weather';
+import { DEMO_MONITORED_ZONES } from '../services/apiService';
+
+// Fix for default Leaflet icon assets in React bundled environments
+const defaultMarkerIcon = L.icon({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+// Custom pin marker icon for user-selected map coordinates
+const selectedPinIcon = L.divIcon({
+  className: 'selected-coordinate-pin',
+  html: `
+    <div style="
+      background-color: #1d5234;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 3px solid #ffffff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 14px;
+    ">
+      📍
+    </div>
+  `,
+  iconSize: [32, 32],
+  iconAnchor: [16, 16],
+});
+
+// Leaflet click handler component for capturing exact click coordinates
+interface MapClickHandlerProps {
+  onLocationSelect: (lat: number, lng: number) => void;
+}
+
+const MapClickHandler: React.FC<MapClickHandlerProps> = ({ onLocationSelect }) => {
+  useMapEvents({
+    click(e) {
+      onLocationSelect(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return null;
+};
+
+// Documented basemap tile providers
+type TileProviderKey = 'streets' | 'satellite' | 'topographic';
+
+interface TileProviderInfo {
+  name: string;
+  url: string;
+  attribution: string;
+  description: string;
+}
+
+const TILE_PROVIDERS: Record<TileProviderKey, TileProviderInfo> = {
+  streets: {
+    name: 'OpenStreetMap (Streets)',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    description: 'Standard cartographic street map with detailed roads, settlements, and administrative boundaries.'
+  },
+  satellite: {
+    name: 'Esri World Imagery (Satellite)',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and GIS User Community',
+    description: 'High-resolution optical satellite imagery (Esri World Imagery tile set).'
+  },
+  topographic: {
+    name: 'OpenTopoMap (Topographic)',
+    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)',
+    description: 'Topographic contours, elevation lines, and terrain landcover relief.'
+  }
+};
+
+interface RiskMapPageProps {
+  onSelectWeatherLocation?: (location: GeocodingLocation) => void;
+  activeWeatherLocationName?: string;
+}
+
+export const RiskMapPage: React.FC<RiskMapPageProps> = ({ onSelectWeatherLocation, activeWeatherLocationName }) => {
   const [activeTileKey, setActiveTileKey] = useState<TileProviderKey>('streets');
   const [showRiskOverlay, setShowRiskOverlay] = useState<boolean>(false);
   const [showDemoZones, setShowDemoZones] = useState<boolean>(true);
@@ -112,6 +215,17 @@ export const RiskMapPage: React.FC = () => {
 
   const handleClearSelection = () => {
     setSelectedLocation(null);
+  };
+
+  const handleFetchWeatherForPin = () => {
+    if (selectedLocation && onSelectWeatherLocation) {
+      onSelectWeatherLocation({
+        id: Date.now(),
+        name: `Map Point (${selectedLocation.lat.toFixed(3)}°, ${selectedLocation.lng.toFixed(3)}°)`,
+        latitude: selectedLocation.lat,
+        longitude: selectedLocation.lng,
+      });
+    }
   };
 
   return (
@@ -224,6 +338,26 @@ export const RiskMapPage: React.FC = () => {
                         <span>Longitude:</span> <strong>{selectedLocation.lng.toFixed(5)}° E</strong>
                       </div>
                     </div>
+                    {onSelectWeatherLocation && (
+                      <button
+                        type="button"
+                        onClick={handleFetchWeatherForPin}
+                        style={{
+                          marginTop: '8px',
+                          width: '100%',
+                          backgroundColor: '#0284c7',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        🌤️ Fetch Open-Meteo Weather Here
+                      </button>
+                    )}
                     <div className="popup-footer" style={{ marginTop: '8px', color: '#64748b' }}>
                       <em>Click anywhere on map to inspect new coordinates.</em>
                     </div>
@@ -305,13 +439,23 @@ export const RiskMapPage: React.FC = () => {
               <div>
                 <span className="inspection-title">Coordinate Location Picker:</span>
                 <span className="inspection-placeholder">
-                  Click any point on the map to inspect geographic coordinates and sector location.
+                  Click any point on the map to inspect geographic coordinates and fetch Open-Meteo weather.
                 </span>
               </div>
             )}
           </div>
 
           <div className="inspection-right">
+            {selectedLocation && onSelectWeatherLocation && (
+              <button 
+                type="button"
+                className="clear-selection-btn" 
+                onClick={handleFetchWeatherForPin}
+                style={{ backgroundColor: '#f0f9ff', color: '#0369a1', borderColor: '#bae6fd' }}
+              >
+                <CloudSun className="btn-icon" /> Set as Weather Location
+              </button>
+            )}
             {selectedLocation && (
               <button className="clear-selection-btn" onClick={handleClearSelection}>
                 <RotateCcw className="btn-icon" /> Clear Pin
@@ -348,7 +492,7 @@ export const RiskMapPage: React.FC = () => {
             <li>✓ Smooth pan, scroll zoom, and extent reset controls.</li>
             <li>✓ On-click location coordinate extraction (lat/lng decimal degrees).</li>
             <li>✓ Switchable cartographic, topographic, and satellite raster layers.</li>
-            <li>✓ Responsive layout adhering to ForestFusion dark green theme.</li>
+            <li>✓ <strong>Day 3:</strong> Open-Meteo live weather observation integration.</li>
           </ul>
         </div>
 
@@ -369,3 +513,4 @@ export const RiskMapPage: React.FC = () => {
 };
 
 export default RiskMapPage;
+

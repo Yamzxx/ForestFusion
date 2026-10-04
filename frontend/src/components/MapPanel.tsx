@@ -1,12 +1,40 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
-import { MapPin, Layers3, AlertTriangle } from 'lucide-react';
+import { MapPin, Layers3, AlertTriangle, CloudSun } from 'lucide-react';
 import type { MonitoredZone } from '../types';
+import type { GeocodingLocation, WeatherData } from '../types/weather';
 
 interface MapPanelProps {
   zones: MonitoredZone[];
+  selectedWeatherLocation?: GeocodingLocation;
+  weatherData?: WeatherData | null;
 }
+
+// Custom icon for selected weather observation location pin
+const weatherMarkerIcon = L.divIcon({
+  className: 'weather-leaflet-marker',
+  html: `
+    <div style="
+      background-color: #0284c7;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 3px solid #ffffff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 14px;
+    ">
+      🌤️
+    </div>
+  `,
+  iconSize: [32, 32],
+  iconAnchor: [16, 16],
+});
 
 // Function to create color-coded SVG div icons for Leaflet markers
 const createCustomMarkerIcon = (riskLevel: string) => {
@@ -40,7 +68,7 @@ const createCustomMarkerIcon = (riskLevel: string) => {
   });
 };
 
-export const MapPanel: React.FC<MapPanelProps> = ({ zones }) => {
+export const MapPanel: React.FC<MapPanelProps> = ({ zones, selectedWeatherLocation, weatherData }) => {
   const [activeTile, setActiveTile] = useState<'streets' | 'satellite'>('streets');
   const [showRiskOverlay, setShowRiskOverlay] = useState<boolean>(true);
   const [selectedZone, setSelectedZone] = useState<MonitoredZone | null>(null);
@@ -112,6 +140,40 @@ export const MapPanel: React.FC<MapPanelProps> = ({ zones }) => {
             url={tileUrls[activeTile]}
           />
 
+          {/* Selected Weather Location Marker (Distinct from Monitored Forest Regions) */}
+          {selectedWeatherLocation && (
+            <Marker
+              position={[selectedWeatherLocation.latitude, selectedWeatherLocation.longitude]}
+              icon={weatherMarkerIcon}
+            >
+              <Popup>
+                <div className="map-popup-content">
+                  <div className="popup-header">
+                    <strong>{selectedWeatherLocation.name}</strong>
+                    <span className="popup-risk-badge" style={{ backgroundColor: '#e0f2fe', color: '#0369a1' }}>
+                      Weather Location
+                    </span>
+                  </div>
+                  <div className="popup-grid">
+                    <div className="popup-item">
+                      <span>Coordinates:</span> <strong>{selectedWeatherLocation.latitude.toFixed(3)}°, {selectedWeatherLocation.longitude.toFixed(3)}°</strong>
+                    </div>
+                    {weatherData && (
+                      <>
+                        <div className="popup-item"><span>Condition:</span> <strong>{weatherData.wmoDescription}</strong></div>
+                        <div className="popup-item"><span>Temp / Humidity:</span> <strong>{weatherData.current.temperature_2m}°C / {weatherData.current.relative_humidity_2m}%</strong></div>
+                        <div className="popup-item"><span>Wind Speed:</span> <strong>{weatherData.current.wind_speed_10m} km/h</strong></div>
+                      </>
+                    )}
+                  </div>
+                  <div className="popup-footer">
+                    <span className="popup-demo-tag" style={{ color: '#0284c7' }}>[WEATHER OBSERVATION LOCATION (OPEN-METEO)]</span>
+                  </div>
+                </div>
+              </Popup>
+            </Marker>
+          )}
+
           {showRiskOverlay && zones.map((zone) => {
             const circleColor = 
               zone.riskLevel === 'High' ? '#e67e22' : 
@@ -173,6 +235,11 @@ export const MapPanel: React.FC<MapPanelProps> = ({ zones }) => {
             <div className="legend-item"><span className="legend-dot amber"></span> Moderate Risk</div>
             <div className="legend-item"><span className="legend-dot orange"></span> High Risk</div>
             <div className="legend-item"><span className="legend-dot red"></span> Extreme Risk</div>
+            {selectedWeatherLocation && (
+              <div className="legend-item" style={{ marginTop: '4px', borderTop: '1px solid #e2e8f0', paddingTop: '4px' }}>
+                <span className="legend-dot" style={{ backgroundColor: '#0284c7' }}></span> Open-Meteo Weather Location
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -188,3 +255,4 @@ export const MapPanel: React.FC<MapPanelProps> = ({ zones }) => {
     </div>
   );
 };
+
