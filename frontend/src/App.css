@@ -1758,5 +1758,127 @@
   line-height: 1.45;
 }
 
+/* ==========================================================================
+   DAY 5: COPERNICUS SENTINEL-2 INTEGRATION STYLES
+   ========================================================================== */
+
+.status-badge-pill.configured {
+  background-color: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.veg-box-value.configured-text {
+  color: #166534;
+}
+
+.copernicus-setup-card {
+  background-color: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.setup-card-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  background-color: #e0f2fe;
+}
+
+.setup-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.setup-icon {
+  width: 22px;
+  height: 22px;
+  color: #0284c7;
+}
+
+.setup-card-header h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0369a1;
+  margin: 0;
+}
+
+.setup-sub {
+  font-size: 0.75rem;
+  color: #0284c7;
+}
+
+.toggle-setup-btn {
+  background: none;
+  border: none;
+  color: #0369a1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.setup-card-body {
+  padding: 18px 20px;
+  background-color: #ffffff;
+  border-top: 1px solid #bae6fd;
+}
+
+.setup-intro {
+  font-size: 0.82rem;
+  color: #334155;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.setup-steps-list {
+  padding-left: 20px;
+  font-size: 0.8rem;
+  color: #0f172a;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.setup-steps-list li {
+  line-height: 1.45;
+}
+
+.setup-note-box {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.78rem;
+  color: #475569;
+}
+
+.setup-note-box .note-icon {
+  width: 16px;
+  height: 16px;
+  color: #0284c7;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.setup-note-box code {
+  background-color: #e2e8f0;
+  color: #0f172a;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+
 
 

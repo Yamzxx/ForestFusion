@@ -6,6 +6,8 @@ export interface VegetationObservation {
   satellite_pass_id?: string;
   satellite_name: string;
   cloud_cover_percent?: number;
+  spatial_resolution?: string;
+  quality_flag?: string;
 }
 
 export interface VegetationDataResponse {
@@ -15,9 +17,10 @@ export interface VegetationDataResponse {
   latitude?: number;
   longitude?: number;
   provider: string;
-  is_configured: bool;
+  is_configured: boolean;
   latest_observation?: VegetationObservation;
   observations: VegetationObservation[];
+  setup_instructions?: string[];
 }
 
 export interface VegetationState {

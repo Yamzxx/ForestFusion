@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Trees, 
   MapPin, 
@@ -9,7 +9,11 @@ import {
   Info, 
   HelpCircle,
   Activity,
-  Layers
+  Layers,
+  Key,
+  ChevronDown,
+  ChevronUp,
+  Globe
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -36,6 +40,7 @@ export const VegetationPanel: React.FC<VegetationPanelProps> = ({
   onRetry,
 }) => {
   const { data, loading, error } = vegetationState;
+  const [showSetupGuide, setShowSetupGuide] = useState<boolean>(true);
 
   const hasLocation = Boolean(selectedLocation && (selectedLocation.name || selectedLocation.latitude));
 
@@ -46,17 +51,17 @@ export const VegetationPanel: React.FC<VegetationPanelProps> = ({
         <div className="panel-header-title">
           <Trees className="panel-header-icon" />
           <div>
-            <h3>Forest Health & Vegetation Canopy Monitoring</h3>
+            <h3>Forest Health & Satellite Vegetation Monitoring</h3>
             <span className="panel-subtitle">
-              Sentinel-2 multispectral satellite telemetry and NDVI spectral vigor analysis
+              Copernicus Sentinel-2 MSI L2A multispectral satellite telemetry and NDVI spectral vigor analysis
             </span>
           </div>
         </div>
 
         <div className="panel-controls">
-          <span className="status-badge-pill unconfigured">
-            <AlertCircle className="pill-icon" />
-            {data?.status === 'configured' ? 'SATELLITE DATA ACTIVE' : 'SATELLITE SOURCE UNCONFIGURED'}
+          <span className={`status-badge-pill ${data?.is_configured ? 'configured' : 'unconfigured'}`}>
+            <Globe className="pill-icon" />
+            {data?.is_configured ? 'COPERNICUS SATELLITE CONNECTED' : 'COPERNICUS SATELLITE UNCONFIGURED'}
           </span>
           <button
             type="button"
@@ -66,7 +71,7 @@ export const VegetationPanel: React.FC<VegetationPanelProps> = ({
             title="Refresh satellite data pipeline"
           >
             <RefreshCw className={`btn-icon ${loading ? 'spinner' : ''}`} />
-            <span>Check Pipeline</span>
+            <span>Check API Pipeline</span>
           </button>
         </div>
       </div>
@@ -100,8 +105,8 @@ export const VegetationPanel: React.FC<VegetationPanelProps> = ({
         <div className="weather-state-box loading-state" style={{ marginTop: '16px' }}>
           <RefreshCw className="state-icon spinner" />
           <div className="state-text">
-            <strong>Querying Satellite Vegetation Service...</strong>
-            <p>Checking Sentinel-2 raster availability for {selectedLocation?.name || 'target location'}...</p>
+            <strong>Querying Copernicus Satellite Vegetation Service...</strong>
+            <p>Checking Sentinel-2 L2A raster tile availability for {selectedLocation?.name || 'target location'}...</p>
           </div>
         </div>
       )}
@@ -111,11 +116,11 @@ export const VegetationPanel: React.FC<VegetationPanelProps> = ({
         <div className="weather-state-box error-state" style={{ marginTop: '16px' }}>
           <AlertCircle className="state-icon error-color" />
           <div className="state-text">
-            <strong>Vegetation Data Service Error</strong>
+            <strong>Satellite Vegetation Service Error</strong>
             <p>{error}</p>
           </div>
           <button type="button" className="error-retry-btn" onClick={onRetry}>
-            Retry Request
+            Retry API Check
           </button>
         </div>
       )}
@@ -123,56 +128,105 @@ export const VegetationPanel: React.FC<VegetationPanelProps> = ({
       {/* Main Content View */}
       {!loading && !error && (
         <div className="vegetation-content" style={{ marginTop: '16px' }}>
-          {/* Top Status & Latest Observation Row */}
+          
+          {/* Top Status & Latest Observation Grid */}
           <div className="vegetation-status-grid">
             {/* Status Card */}
             <div className="veg-status-box">
               <div className="veg-box-label">
                 <Layers className="box-sub-icon" />
-                SATELLITE DATA SOURCE STATUS
+                SATELLITE DATA PROVIDER
               </div>
-              <div className="veg-box-value unconfigured">
-                {data?.is_configured ? 'Configured' : 'Not Configured'}
+              <div className={`veg-box-value ${data?.is_configured ? 'configured-text' : 'unconfigured'}`}>
+                {data?.provider || 'Copernicus Data Space Ecosystem'}
               </div>
               <p className="veg-box-desc">
-                {data?.message || 'Satellite vegetation data source not configured. Connect Sentinel-2 or Google Earth Engine API credentials in backend environment.'}
+                {data?.is_configured 
+                  ? 'Authenticated. Querying Sentinel-2 MSI L2A surface reflectance tiles.' 
+                  : (data?.message || 'Copernicus API credentials not configured in backend environment.')}
               </p>
             </div>
 
-            {/* Observation Date Card */}
+            {/* Latest Observation Date Card */}
             <div className="veg-status-box">
               <div className="veg-box-label">
                 <Clock className="box-sub-icon" />
-                LATEST SATELLITE OBSERVATION DATE
+                LATEST SATELLITE PASS DATE
               </div>
               <div className="veg-box-value neutral">
-                {data?.latest_observation?.timestamp ? data.latest_observation.timestamp : 'No Data Available'}
+                {data?.latest_observation?.timestamp ? data.latest_observation.timestamp : 'No Pass Records'}
               </div>
               <p className="veg-box-desc">
                 {data?.latest_observation 
-                  ? `Satellite: ${data.latest_observation.satellite_name} (Pass ID: ${data.latest_observation.satellite_pass_id || 'N/A'})` 
-                  : 'Genuine satellite pass dates will populate when Google Earth Engine / Sentinel API is connected.'}
+                  ? `Pass ID: ${data.latest_observation.satellite_pass_id || 'Sentinel-2 L2A'} | Res: ${data.latest_observation.spatial_resolution || '10m'}` 
+                  : 'Genuine observation pass dates render when Copernicus API credentials are authenticated.'}
               </p>
             </div>
 
-            {/* NDVI Current Value Card */}
+            {/* NDVI Metric Card */}
             <div className="veg-status-box">
               <div className="veg-box-label">
                 <Activity className="box-sub-icon" />
-                CURRENT NDVI METRIC
+                CALCULATED NDVI METRIC
               </div>
               <div className="veg-box-value neutral">
-                {data?.latest_observation?.ndvi !== undefined ? data.latest_observation.ndvi.toFixed(2) : 'N/A'}
+                {data?.latest_observation?.ndvi !== undefined ? data.latest_observation.ndvi.toFixed(3) : 'N/A'}
               </div>
               <p className="veg-box-desc">
                 {data?.latest_observation?.ndvi !== undefined 
-                  ? 'Calculated from Sentinel-2 Band 8 (NIR) & Band 4 (Red)' 
-                  : 'No fabricated NDVI values presented. Awaiting satellite raster tile computation.'}
+                  ? `Quality: ${data.latest_observation.quality_flag || 'Clear pixel'} (Cloud: ${data.latest_observation.cloud_cover_percent || 0}%)` 
+                  : 'No fabricated NDVI numbers presented. Real reflectance computation requires Copernicus API connection.'}
               </p>
             </div>
           </div>
 
-          {/* Scientific NDVI Explanation Card */}
+          {/* Copernicus API Configuration Instructions (Rendered when Unconfigured) */}
+          {!data?.is_configured && (
+            <div className="copernicus-setup-card">
+              <div className="setup-card-header" onClick={() => setShowSetupGuide(!showSetupGuide)}>
+                <div className="setup-header-left">
+                  <Key className="setup-icon" />
+                  <div>
+                    <h4>Copernicus Sentinel-2 API Integration Setup Guide</h4>
+                    <span className="setup-sub">
+                      How to connect live Sentinel-2 satellite reflectance telemetry in ForestFusion
+                    </span>
+                  </div>
+                </div>
+                <button type="button" className="toggle-setup-btn">
+                  {showSetupGuide ? <ChevronUp className="btn-icon" /> : <ChevronDown className="btn-icon" />}
+                </button>
+              </div>
+
+              {showSetupGuide && (
+                <div className="setup-card-body">
+                  <p className="setup-intro">
+                    ForestFusion enforces a strict <strong>Real Data Only</strong> policy. To retrieve live Sentinel-2 L2A satellite bands (Band 8 Near-Infrared & Band 4 Red) for any selected map coordinate, configure free Copernicus API credentials:
+                  </p>
+                  
+                  <ol className="setup-steps-list">
+                    {(data?.setup_instructions || [
+                      "1. Register a free user account at Copernicus Data Space Ecosystem (https://dataspace.copernicus.eu).",
+                      "2. Go to User Dashboard -> OAuth Clients and click 'Create Client'.",
+                      "3. Set environment variables COPERNICUS_CLIENT_ID and COPERNICUS_CLIENT_SECRET in backend environment or .env file.",
+                      "4. Restart the FastAPI backend server (cd backend && python -m uvicorn app.main:app --reload --port 8000)."
+                    ]).map((step, idx) => (
+                      <li key={idx}>{step}</li>
+                    ))}
+                  </ol>
+
+                  <div className="setup-note-box">
+                    <Info className="note-icon" />
+                    <span>
+                      <strong>Environment Variables Required:</strong> Set <code>COPERNICUS_CLIENT_ID</code> and <code>COPERNICUS_CLIENT_SECRET</code> (or <code>SENTINEL_HUB_CLIENT_ID</code> & <code>SENTINEL_HUB_CLIENT_SECRET</code>) in <code>backend/.env</code>.
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Scientific NDVI Explanation & Formulas Card */}
           <div className="ndvi-explanation-card">
             <div className="explanation-header">
               <Info className="exp-icon" />
@@ -183,7 +237,7 @@ export const VegetationPanel: React.FC<VegetationPanelProps> = ({
               <div className="formula-display-box">
                 <span className="formula-title">Mathematical Formula:</span>
                 <code className="formula-text">NDVI = (NIR - RED) / (NIR + RED)</code>
-                <span className="formula-sub">Sentinel-2: Band 8 (NIR ~842nm) & Band 4 (Red ~665nm)</span>
+                <span className="formula-sub">Sentinel-2 Band 8 (NIR ~842nm) & Band 4 (Red ~665nm) | Resolution: 10 meters</span>
               </div>
 
               <div className="explanation-paragraphs">
@@ -205,7 +259,7 @@ export const VegetationPanel: React.FC<VegetationPanelProps> = ({
               <div>
                 <strong>Important Scientific Distinction:</strong>
                 <p>
-                  NDVI is a remote-sensing indicator of <em>canopy greenness and leaf area density</em>. It does <strong>not</strong> represent a direct wildfire risk score, ignition probability, or a definitive diagnosis of tree disease. Comprehensive wildfire assessment requires integrating fuel moisture (NDMI), meteorology, and calibrated ML inference.
+                  NDVI is a remote-sensing indicator of <em>canopy greenness and leaf area density</em>. It does <strong>not</strong> represent a direct wildfire risk score, ignition probability, or a definitive diagnosis of tree disease. Comprehensive wildfire risk assessment requires integrating canopy moisture (NDMI), meteorology, and calibrated ML inference.
                 </p>
               </div>
             </div>

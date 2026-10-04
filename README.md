@@ -98,10 +98,29 @@ Day 4 adds the initial **Forest Health and Vegetation Monitoring** panel and ser
   * **Guardrail Notice**: Explicitly clarifies that NDVI is a canopy greenness indicator, NOT a direct wildfire probability score or definitive disease diagnosis.
 * **Conditional Trend Visualization**:
   * Renders longitudinal NDVI trend charts only when $\ge 2$ verified observations are present. Shows a styled unavailable notice when 0 observations exist.
-* **Location Support & Reuse**:
-  * Integrates seamlessly with the top search bar and `RiskMapPage` location picker.
+---
+
+## 🛰️ Day 5 Feature: Real Satellite Vegetation Data Integration (Copernicus Sentinel-2)
+
+Day 5 connects the vegetation monitoring panel to the official **Copernicus Data Space Ecosystem (CDSE)** for Sentinel-2 MSI L2A multispectral surface reflectance telemetry:
+
+* **Selected Satellite Provider**:
+  * **Provider**: European Space Agency (ESA) Copernicus Data Space Ecosystem (Sentinel-2 MSI L2A).
+  * **Authentication**: OAuth2 Client Credentials grant (`https://identity.dataspace.copernicus.eu/auth/realms/CDSE/protocol/openid-connect/token`).
+  * **API Catalog**: STAC Catalog & Process API (`https://sh.dataspace.copernicus.eu/api/v1/catalog/1.0.0/search`).
+* **Genuine NDVI Reflectance Computation**:
+  * Calculates NDVI strictly from Sentinel-2 Band 8 (Near-Infrared, $\sim 842\text{nm}$) and Band 4 (Red, $\sim 665\text{nm}$):
+    $$\text{NDVI} = \frac{\text{B08} - \text{B04}}{\text{B08} + \text{B04}}$$
+  * Includes Division-by-Zero guardrails, no-data checks, and cloud cover percentage filtering.
+* **Environment-Based Security & Setup Guide**:
+  * API credentials (`COPERNICUS_CLIENT_ID` and `COPERNICUS_CLIENT_SECRET`) are read strictly from backend environment variables (`backend/.env`). No secrets are exposed to the frontend.
+  * When credentials are absent, an interactive 4-step Copernicus registration guide is displayed in the UI. No fake or random numbers are generated.
+* **Observation & Trend Display**:
+  * Displays spatial resolution (10m), cloud cover %, satellite pass ID, quality flags, and observation timestamps.
+  * Historical trend charts render **only** when multiple genuine dated observations are returned from the API.
 
 ---
+
 
 ## 🛠️ Technology Stack
 
