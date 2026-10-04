@@ -68,43 +68,7 @@ export const RiskMapPage: React.FC = () => (
   </div>
 );
 
-export const ForestHealthPage: React.FC = () => (
-  <div className="page-container placeholder-page">
-    <div className="placeholder-hero">
-      <Trees className="hero-icon" />
-      <h2>Forest Health & Spectral Index Analytics</h2>
-      <p className="hero-desc">
-        Scientific computation and visualization of remote-sensing indices: NDVI (Vegetation Vigor), NDMI (Canopy Moisture), and NBR (Normalized Burn Ratio).
-      </p>
-      <div className="hero-status-tag">
-        <Lock className="tag-icon" /> Spectral Formulas Ready for Python Service Integration
-      </div>
-    </div>
 
-    <div className="formula-cards-grid">
-      <div className="formula-card">
-        <span className="formula-tag">NDVI</span>
-        <h3>Normalized Difference Vegetation Index</h3>
-        <code className="formula-code">NDVI = (B8 - B4) / (B8 + B4)</code>
-        <p>Measures photosynthetic activity and canopy greenness. Values range from -1.0 to +1.0.</p>
-      </div>
-
-      <div className="formula-card">
-        <span className="formula-tag">NDMI</span>
-        <h3>Normalized Difference Moisture Index</h3>
-        <code className="formula-code">NDMI = (B8 - B11) / (B8 + B11)</code>
-        <p>Sensitive to canopy water content. Crucial for identifying severe vegetation drought stress.</p>
-      </div>
-
-      <div className="formula-card">
-        <span className="formula-tag">NBR</span>
-        <h3>Normalized Burn Ratio</h3>
-        <code className="formula-code">NBR = (B8 - B12) / (B8 + B12)</code>
-        <p>Used to highlight burned areas and estimate fire burn severity post-ignition.</p>
-      </div>
-    </div>
-  </div>
-);
 
 export const HistoricalFiresPage: React.FC = () => (
   <div className="page-container placeholder-page">

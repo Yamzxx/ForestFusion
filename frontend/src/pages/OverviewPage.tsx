@@ -6,16 +6,19 @@ import { TrendChart } from '../components/TrendChart';
 import { ObservationsPanel } from '../components/ObservationsPanel';
 import { WeatherDetailCard } from '../components/WeatherDetailCard';
 import type { WeatherState, GeocodingLocation } from '../types/weather';
+import type { VegetationState } from '../types/vegetation';
 import { DEMO_MONITORED_ZONES, DEMO_HISTORICAL_TREND, DEMO_RECENT_OBSERVATIONS } from '../services/apiService';
 
 interface OverviewPageProps {
   weatherState: WeatherState;
+  vegetationState?: VegetationState;
   onRetryWeather: () => void;
   onSelectLocation: (location: GeocodingLocation) => void;
 }
 
 export const OverviewPage: React.FC<OverviewPageProps> = ({
   weatherState,
+  vegetationState,
   onRetryWeather,
   onSelectLocation,
 }) => {
@@ -62,11 +65,21 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
 
         <MetricCard
           title="FOREST HEALTH (NDVI)"
-          value="0.68 Avg"
-          subtitle="Moderate-High Vegetation Canopy Density"
+          value={
+            vegetationState?.data?.is_configured 
+              ? (vegetationState.data.latest_observation?.ndvi !== undefined 
+                  ? vegetationState.data.latest_observation.ndvi.toFixed(2) 
+                  : 'No Data')
+              : 'Unconfigured'
+          }
+          subtitle={
+            vegetationState?.data?.is_configured
+              ? 'Sentinel-2 Multispectral NDVI Ingestion'
+              : 'Satellite Source Unconfigured (GEE Target)'
+          }
           icon={<Trees className="metric-icon green" />}
-          badgeText="DEMO SATELLITE MOCK"
-          badgeType="success"
+          badgeText={vegetationState?.data?.is_configured ? 'LIVE SATELLITE' : 'SATELLITE UNCONFIGURED'}
+          badgeType={vegetationState?.data?.is_configured ? 'success' : 'warning'}
         />
 
         <MetricCard
@@ -114,4 +127,5 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
     </div>
   );
 };
+
 

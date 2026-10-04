@@ -1,4 +1,6 @@
 export * from './weather';
+export * from './vegetation';
+
 
 export type NavigationTab = 
   | 'overview' 

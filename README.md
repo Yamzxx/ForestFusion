@@ -80,6 +80,28 @@ Day 3 connects live, real-time meteorological observations directly into the Ove
 
 ---
 
+## 🌲 Day 4 Feature: Forest Health & Vegetation Monitoring Foundation
+
+Day 4 adds the initial **Forest Health and Vegetation Monitoring** panel and service architecture:
+
+* **Backend Service Interface (`/api/vegetation`)**:
+  * Pydantic schemas (`VegetationObservation`, `VegetationDataResponse`) and service endpoint (`/api/vegetation`).
+  * Honest provider status check: returns `status="unconfigured"` and `is_configured=False` when satellite credentials (GEE / Sentinel Hub) are pending.
+* **Strict "Real Data Only" Policy**:
+  * Zero fabricated NDVI values, synthetic observation dates, or fake health percentages presented as real observations.
+  * Clear messaging: *"Satellite vegetation data source not configured."*
+* **Vegetation Monitoring Panel (`VegetationPanel.tsx`)**:
+  * Displays active selected location or coordinates.
+  * Shows satellite data provider status (`Unconfigured` / `Configured`).
+  * Renders latest observation date when genuine data exists, or explicit notice when unconfigured.
+  * **Scientific NDVI Definition**: Explains the Near-Infrared & Red reflectance formula ($\text{NDVI} = \frac{\text{NIR} - \text{RED}}{\text{NIR} + \text{RED}}$) using Sentinel-2 Band 8 and Band 4.
+  * **Guardrail Notice**: Explicitly clarifies that NDVI is a canopy greenness indicator, NOT a direct wildfire probability score or definitive disease diagnosis.
+* **Conditional Trend Visualization**:
+  * Renders longitudinal NDVI trend charts only when $\ge 2$ verified observations are present. Shows a styled unavailable notice when 0 observations exist.
+* **Location Support & Reuse**:
+  * Integrates seamlessly with the top search bar and `RiskMapPage` location picker.
+
+---
 
 ## 🛠️ Technology Stack
 

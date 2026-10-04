@@ -4,8 +4,8 @@ import { Header } from './components/Header';
 import { DemoNoticeBanner } from './components/DemoNoticeBanner';
 import { OverviewPage } from './pages/OverviewPage';
 import { RiskMapPage } from './pages/RiskMapPage';
+import { ForestHealthPage } from './pages/ForestHealthPage';
 import { 
-  ForestHealthPage, 
   HistoricalFiresPage, 
   AnalyticsPage, 
   AlertsPage, 
@@ -13,7 +13,8 @@ import {
 } from './pages/PlaceholderPages';
 import { fetchHealthStatus } from './services/apiService';
 import { fetchCurrentWeather, DEFAULT_WEATHER_LOCATION } from './services/weatherService';
-import type { NavigationTab, HealthStatus, GeocodingLocation, WeatherState } from './types';
+import { fetchVegetationData } from './services/vegetationService';
+import type { NavigationTab, HealthStatus, GeocodingLocation, WeatherState, VegetationState } from './types';
 import './App.css';
 
 export function App() {
@@ -30,7 +31,15 @@ export function App() {
     selectedLocation: DEFAULT_WEATHER_LOCATION,
   });
 
+  // Day 4 Vegetation Monitoring State
+  const [vegetationState, setVegetationState] = useState<VegetationState>({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
   const weatherAbortControllerRef = useRef<AbortController | null>(null);
+  const vegAbortControllerRef = useRef<AbortController | null>(null);
 
   // Fetch live weather data whenever selectedLocation changes
   const loadWeather = useCallback(async (location: GeocodingLocation, bypassCache = false) => {
@@ -67,12 +76,40 @@ export function App() {
     }
   }, []);
 
+  // Fetch satellite vegetation data whenever selectedLocation changes
+  const loadVegetation = useCallback(async (location: GeocodingLocation) => {
+    if (vegAbortControllerRef.current) {
+      vegAbortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    vegAbortControllerRef.current = controller;
+
+    setVegetationState((prev) => ({ ...prev, loading: true, error: null }));
+    try {
+      const data = await fetchVegetationData(location.latitude, location.longitude, location.name, controller.signal);
+      setVegetationState({ data, loading: false, error: null });
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        setVegetationState({
+          data: null,
+          loading: false,
+          error: err.message || 'Failed to query vegetation service',
+        });
+      }
+    }
+  }, []);
+
   useEffect(() => {
     loadWeather(selectedLocation);
-  }, [selectedLocation, loadWeather]);
+    loadVegetation(selectedLocation);
+  }, [selectedLocation, loadWeather, loadVegetation]);
 
   const handleRetryWeather = () => {
     loadWeather(selectedLocation, true);
+  };
+
+  const handleRetryVegetation = () => {
+    loadVegetation(selectedLocation);
   };
 
   useEffect(() => {
@@ -102,6 +139,7 @@ export function App() {
         return (
           <OverviewPage 
             weatherState={weatherState} 
+            vegetationState={vegetationState}
             onRetryWeather={handleRetryWeather}
             onSelectLocation={setSelectedLocation}
           />
@@ -114,7 +152,13 @@ export function App() {
           />
         );
       case 'forest-health':
-        return <ForestHealthPage />;
+        return (
+          <ForestHealthPage 
+            vegetationState={vegetationState}
+            selectedLocation={selectedLocation}
+            onRetryVegetation={handleRetryVegetation}
+          />
+        );
       case 'historical-fires':
         return <HistoricalFiresPage />;
       case 'analytics':
@@ -127,6 +171,7 @@ export function App() {
         return (
           <OverviewPage 
             weatherState={weatherState} 
+            vegetationState={vegetationState}
             onRetryWeather={handleRetryWeather}
             onSelectLocation={setSelectedLocation}
           />
@@ -163,4 +208,5 @@ export function App() {
 }
 
 export default App;
+
 
