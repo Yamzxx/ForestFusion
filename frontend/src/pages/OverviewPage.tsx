@@ -6,6 +6,7 @@ import { TrendChart } from '../components/TrendChart';
 import { ObservationsPanel } from '../components/ObservationsPanel';
 import { WeatherDetailCard } from '../components/WeatherDetailCard';
 import { DataReadinessCard } from '../components/DataReadinessCard';
+import { BaselineModelCard } from '../components/BaselineModelCard';
 import type { WeatherState, GeocodingLocation } from '../types/weather';
 import type { VegetationState } from '../types/vegetation';
 import { DEMO_MONITORED_ZONES, DEMO_HISTORICAL_TREND, DEMO_RECENT_OBSERVATIONS } from '../services/apiService';
@@ -117,6 +118,15 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           zones={DEMO_MONITORED_ZONES} 
           selectedWeatherLocation={selectedLocation}
           weatherData={data}
+        />
+      </div>
+
+      {/* Day 9 Baseline Wildfire Risk Model (Logistic Regression) Card */}
+      <div className="section-row">
+        <BaselineModelCard 
+          initialTemperature={data?.current.temperature_2m || 32.0}
+          initialHumidity={data?.current.relative_humidity_2m || 25.0}
+          initialWindSpeed={data?.current.wind_speed_10m || 18.0}
         />
       </div>
 
