@@ -5,6 +5,7 @@ import { MapPanel } from '../components/MapPanel';
 import { TrendChart } from '../components/TrendChart';
 import { ObservationsPanel } from '../components/ObservationsPanel';
 import { WeatherDetailCard } from '../components/WeatherDetailCard';
+import { DataReadinessCard } from '../components/DataReadinessCard';
 import type { WeatherState, GeocodingLocation } from '../types/weather';
 import type { VegetationState } from '../types/vegetation';
 import { DEMO_MONITORED_ZONES, DEMO_HISTORICAL_TREND, DEMO_RECENT_OBSERVATIONS } from '../services/apiService';
@@ -116,6 +117,14 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           zones={DEMO_MONITORED_ZONES} 
           selectedWeatherLocation={selectedLocation}
           weatherData={data}
+        />
+      </div>
+
+      {/* Day 7 Data Preparation & Feature Engineering Readiness Card */}
+      <div className="section-row">
+        <DataReadinessCard 
+          lat={selectedLocation.latitude} 
+          lng={selectedLocation.longitude} 
         />
       </div>
 

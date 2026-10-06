@@ -148,6 +148,30 @@ Day 6 adds a genuine, documented historical wildfire and active-fire record feat
 
 ---
 
+## 📊 Day 7 Feature: Data Preparation & Feature Engineering Pipeline
+
+Day 7 establishes the **Data Preparation and Feature Engineering Architecture** to validate, align, and clean multi-source environmental telemetry prior to XGBoost model training:
+
+* **Backend Service & Validation (`/api/data-readiness`)**:
+  * Pydantic schemas (`UnifiedEnvironmentalRecord`, `ValidationSummary`, `DataReadinessReport`) and service endpoint (`/api/data-readiness`).
+  * **Data Cleaning Guardrails**: Validates coordinate ranges ($\text{lat} \in [-90, 90]$, $\text{lng} \in [-180, 180]$), meteorological bounds (Temperature, Humidity, Wind), reflectance index ranges ($\text{NDVI} \in [-1.0, 1.0]$), and radiometer brightness temperatures ($100\text{K}-500\text{K}$).
+  * **Duplicate Key & Outlier Audit**: Flags duplicate observations based on unique spatio-temporal identifiers without deleting records silently.
+* **Spatio-Temporal Alignment**:
+  * Configurable time-matching window ($\pm 1$ to $3$ days) and spatial grid cell resolution (e.g. `grid_11.70_76.40` at $0.05^\circ$ spacing $\sim 5\text{km}$).
+  * Preserves exact original timestamps and coordinates without creating fake zero-filled rows when source data is missing.
+* **Documented Candidate Features**:
+  * **Weather**: `temperature_2m`, `relative_humidity_2m`, `apparent_temperature`, `precipitation`, `wind_speed_10m`, `wind_direction_10m`.
+  * **Vegetation**: `ndvi`, `ndmi`, `nbr`, `cloud_cover_percent`.
+  * **Temporal**: `month`, `day_of_year`, `is_summer_season`.
+  * **Spatial**: `latitude`, `longitude`, `grid_cell_id`.
+* **Fire Target Label Guardrails**:
+  * Strictly preserves distinctions between `satellite_thermal_hotspot`, `confirmed_wildfire_incident`, `no_satellite_detection`, and `unobserved`.
+  * Prevents premature binary label generation or fake risk probability scores.
+* **Dashboard Data Readiness Widget (`DataReadinessCard.tsx`)**:
+  * Displays honest dataset readiness statuses (`Data Available`, `Partially Available`, `Configuration Required`, `Insufficient Data`).
+  * Lists candidate feature inventory, validation metrics, and explicit ML training blockers.
+
+---
 
 ## 🛠️ Technology Stack
 

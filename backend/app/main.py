@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.health import router as health_router
 from app.api.vegetation import router as vegetation_router
 from app.api.fire import router as fire_router
+from app.api.data_prep import router as data_prep_router
 
 app = FastAPI(
     title="ForestFusion API",
@@ -23,6 +24,7 @@ app.add_middleware(
 app.include_router(health_router, prefix="/api", tags=["Health"])
 app.include_router(vegetation_router, prefix="/api", tags=["Vegetation"])
 app.include_router(fire_router, prefix="/api", tags=["FireDetections"])
+app.include_router(data_prep_router, prefix="/api", tags=["DataPreparation"])
 
 @app.get("/")
 async def root():
@@ -32,7 +34,8 @@ async def root():
         "docs_url": "/docs",
         "health_check": "/api/health",
         "vegetation_check": "/api/vegetation",
-        "fire_detections_check": "/api/fire-detections"
+        "fire_detections_check": "/api/fire-detections",
+        "data_readiness_check": "/api/data-readiness"
     }
 
 
