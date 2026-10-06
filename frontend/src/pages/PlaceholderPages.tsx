@@ -32,59 +32,6 @@ const StageModuleCard: React.FC<StageCardProps> = ({ stage, title, description, 
   </div>
 );
 
-export const RiskMapPage: React.FC = () => (
-  <div className="page-container placeholder-page">
-    <div className="placeholder-hero">
-      <Map className="hero-icon" />
-      <h2>Dedicated Geospatial Risk Map Engine</h2>
-      <p className="hero-desc">
-        Full-screen interactive Leaflet map canvas with custom GeoJSON polygon layers, Sentinel-2 false-color composite toggles, and localized XGBoost risk heatmaps.
-      </p>
-      <div className="hero-status-tag">
-        <Lock className="tag-icon" /> Module Deferred to Stage 3 (Geospatial & Satellite Pipeline)
-      </div>
-    </div>
-
-    <div className="module-specs-grid">
-      <StageModuleCard
-        stage="STAGE 3"
-        title="Sentinel-2 Satellite Band Extraction"
-        description="Fetch Band 4 (Red), Band 8 (NIR), Band 11 (SWIR) via Google Earth Engine API."
-        items={["10m resolution raster ingestion", "Cloud masking using QA60 band", "Automatic bounding box clipping"]}
-      />
-      <StageModuleCard
-        stage="STAGE 4"
-        title="XGBoost Inference Overlay"
-        description="Generate localized risk scores [0.0 - 1.0] per 500m grid cell."
-        items={["Spatial GeoJSON polygon rendering", "Dynamic color gradient mapping", "Cell detail modal with index drilldown"]}
-      />
-      <StageModuleCard
-        stage="STAGE 5"
-        title="Weather Station GIS Interpolation"
-        description="Kriging & Inverse Distance Weighting (IDW) for temperature and humidity fields."
-        items={["Real-time OpenWeatherMap API", "Wind vector directional arrows", "Vapor pressure deficit (VPD) layer"]}
-      />
-    </div>
-  </div>
-);
-
-
-
-export const HistoricalFiresPage: React.FC = () => (
-  <div className="page-container placeholder-page">
-    <div className="placeholder-hero">
-      <Flame className="hero-icon" />
-      <h2>Historical Wildfire Catalog & Spatial Clusters</h2>
-      <p className="hero-desc">
-        Historical fire event dataset import (NASA FIRMS / VIIRS / MODIS thermal anomalies) for model training and historical ignition pattern analysis.
-      </p>
-      <div className="hero-status-tag">
-        <Database className="tag-icon" /> Dataset Storage Target: PostGIS & Pandas DataFrames
-      </div>
-    </div>
-  </div>
-);
-
 export const AnalyticsPage: React.FC = () => (
   <div className="page-container placeholder-page">
     <div className="placeholder-hero">

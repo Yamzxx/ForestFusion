@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.health import router as health_router
 from app.api.vegetation import router as vegetation_router
+from app.api.fire import router as fire_router
 
 app = FastAPI(
     title="ForestFusion API",
@@ -21,6 +22,7 @@ app.add_middleware(
 # Include Routers
 app.include_router(health_router, prefix="/api", tags=["Health"])
 app.include_router(vegetation_router, prefix="/api", tags=["Vegetation"])
+app.include_router(fire_router, prefix="/api", tags=["FireDetections"])
 
 @app.get("/")
 async def root():
@@ -29,6 +31,8 @@ async def root():
         "status": "online",
         "docs_url": "/docs",
         "health_check": "/api/health",
-        "vegetation_check": "/api/vegetation"
+        "vegetation_check": "/api/vegetation",
+        "fire_detections_check": "/api/fire-detections"
     }
+
 

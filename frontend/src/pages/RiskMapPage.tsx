@@ -13,7 +13,32 @@ import {
 } from 'lucide-react';
 import type { MonitoredZone } from '../types';
 import type { GeocodingLocation } from '../types/weather';
+import type { FireDetectionRecord } from '../types/fire';
 import { DEMO_MONITORED_ZONES } from '../services/apiService';
+
+// Custom marker icon for NASA FIRMS satellite fire thermal anomaly detections
+const fireDetectionMarkerIcon = L.divIcon({
+  className: 'fire-leaflet-marker',
+  html: `
+    <div style="
+      background-color: #dc2626;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 14px;
+    ">
+      🔥
+    </div>
+  `,
+  iconSize: [30, 30],
+  iconAnchor: [15, 15],
+});
 
 // Fix for default Leaflet icon assets in React bundled environments
 const defaultMarkerIcon = L.icon({
@@ -99,12 +124,18 @@ const TILE_PROVIDERS: Record<TileProviderKey, TileProviderInfo> = {
 interface RiskMapPageProps {
   onSelectWeatherLocation?: (location: GeocodingLocation) => void;
   activeWeatherLocationName?: string;
+  fireDetections?: FireDetectionRecord[];
 }
 
-export const RiskMapPage: React.FC<RiskMapPageProps> = ({ onSelectWeatherLocation, activeWeatherLocationName }) => {
+export const RiskMapPage: React.FC<RiskMapPageProps> = ({ 
+  onSelectWeatherLocation, 
+  activeWeatherLocationName,
+  fireDetections = []
+}) => {
   const [activeTileKey, setActiveTileKey] = useState<TileProviderKey>('streets');
   const [showRiskOverlay, setShowRiskOverlay] = useState<boolean>(false);
   const [showDemoZones, setShowDemoZones] = useState<boolean>(true);
+  const [showFireLayer, setShowFireLayer] = useState<boolean>(true);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   // Initial geographic extent centered around Western Ghats forest region (India)
@@ -179,6 +210,17 @@ export const RiskMapPage: React.FC<RiskMapPageProps> = ({ onSelectWeatherLocatio
               />
               <span>Demo Sector Reference</span>
             </label>
+
+            {fireDetections.length > 0 && (
+              <label className="checkbox-toggle" title="Toggle NASA FIRMS Satellite Active Fire Markers">
+                <input
+                  type="checkbox"
+                  checked={showFireLayer}
+                  onChange={(e) => setShowFireLayer(e.target.checked)}
+                />
+                <span style={{ color: '#dc2626', fontWeight: 600 }}>🔥 FIRMS Fire Hotspots ({fireDetections.length})</span>
+              </label>
+            )}
 
             <label className="checkbox-toggle" title="Toggle ML Wildfire Risk Overlay">
               <input
@@ -270,6 +312,57 @@ export const RiskMapPage: React.FC<RiskMapPageProps> = ({ onSelectWeatherLocatio
               </Marker>
             )}
 
+            {/* Genuine NASA FIRMS Active Fire Hotspot Detections */}
+            {showFireLayer && fireDetections.map((fire) => (
+              <Marker
+                key={fire.id}
+                position={[fire.latitude, fire.longitude]}
+                icon={fireDetectionMarkerIcon}
+              >
+                <Popup>
+                  <div className="map-popup-content">
+                    <div className="popup-header" style={{ borderBottom: '1px solid #fee2e2', paddingBottom: '4px' }}>
+                      <strong style={{ color: '#991b1b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        🔥 FIRMS Thermal Anomaly
+                      </strong>
+                      <span className="popup-risk-badge" style={{ backgroundColor: '#fee2e2', color: '#991b1b' }}>
+                        {fire.confidence} Confidence
+                      </span>
+                    </div>
+                    <div className="popup-grid" style={{ marginTop: '8px' }}>
+                      <div className="popup-item">
+                        <span>Observed Date:</span> <strong>{fire.acq_date} ({fire.acq_time} UTC)</strong>
+                      </div>
+                      <div className="popup-item">
+                        <span>Coordinates:</span> <strong>{fire.latitude.toFixed(4)}°, {fire.longitude.toFixed(4)}°</strong>
+                      </div>
+                      <div className="popup-item">
+                        <span>Satellite / Sensor:</span> <strong>{fire.satellite} / {fire.instrument}</strong>
+                      </div>
+                      {fire.brightness !== undefined && (
+                        <div className="popup-item">
+                          <span>Brightness Temp:</span> <strong>{fire.brightness} K</strong>
+                        </div>
+                      )}
+                      {fire.frp !== undefined && fire.frp !== null && (
+                        <div className="popup-item">
+                          <span>Fire Power (FRP):</span> <strong>{fire.frp} MW</strong>
+                        </div>
+                      )}
+                      <div className="popup-item">
+                        <span>Day/Night Scan:</span> <strong>{fire.daynight === 'D' ? 'Daytime' : 'Nighttime'}</strong>
+                      </div>
+                    </div>
+                    <div className="popup-footer" style={{ marginTop: '8px', color: '#7f1d1d', fontSize: '0.7rem' }}>
+                      <em>Data Provider: NASA FIRMS ({fire.instrument})</em>
+                      <br />
+                      <span>[SATELLITE THERMAL ANOMALY HOTSPOT]</span>
+                    </div>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+
             {/* Illustrative Reference Sector Circles (Labeled explicitly as Demo Reference) */}
             {showDemoZones && DEMO_MONITORED_ZONES.map((zone: MonitoredZone) => (
               <React.Fragment key={zone.id}>
@@ -320,6 +413,11 @@ export const RiskMapPage: React.FC<RiskMapPageProps> = ({ onSelectWeatherLocatio
               <div className="legend-item">
                 <span className="legend-dot dark"></span> Selected Click Pin
               </div>
+              {fireDetections.length > 0 && (
+                <div className="legend-item" style={{ color: '#dc2626', fontWeight: 600 }}>
+                  <span className="legend-dot red" style={{ backgroundColor: '#dc2626' }}></span> 🔥 FIRMS Hotspots ({fireDetections.length})
+                </div>
+              )}
               <div className="legend-divider" style={{ borderTop: '1px solid #e2e8f0', margin: '6px 0' }}></div>
               <div className="legend-subnote" style={{ fontSize: '0.68rem', color: '#64748b' }}>
                 * Tile Provider: {currentTile.name}

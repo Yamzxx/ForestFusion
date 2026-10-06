@@ -121,6 +121,33 @@ Day 5 connects the vegetation monitoring panel to the official **Copernicus Data
 
 ---
 
+## 🔥 Day 6 Feature: Historical Wildfire Data Integration (NASA FIRMS API)
+
+Day 6 adds a genuine, documented historical wildfire and active-fire record feature using **NASA FIRMS** (Fire Information for Resource Management System):
+
+* **Data Source & Satellite Telemetry**:
+  * **Provider**: NASA FIRMS (MODIS / VIIRS active-fire detection telemetry).
+  * **Supported Instruments**: VIIRS S-NPP (375m NRT), VIIRS NOAA-20 (375m NRT), MODIS (1km NRT).
+  * **API Endpoint**: `https://firms.modaps.eosdis.nasa.gov/api/country/csv/{MAP_KEY}/{SOURCE}/{COUNTRY}/{DAYS}`
+* **Scientific Data Provenance & Limitations**:
+  * **Thermal Anomalies**: Explains that satellite active-fire detections represent radiometer thermal anomaly hotspots (ch4 brightness spikes), NOT automatically confirmed ground wildfires.
+  * **No Perimeter Boundary**: Satellite point coordinates mark sensor pixel centroids, not exact wildfire perimeter boundaries or total burned area polygons.
+  * **No Negative Proof**: Zero detections in a query date range does not constitute scientific proof that no fires occurred (cloud cover, sensor swath gaps, canopy obstruction).
+* **Backend Endpoint (`/api/fire-detections`)**:
+  * Read credentials safely from `NASA_FIRMS_MAP_KEY` (or `FIRMS_MAP_KEY`) in `backend/.env`.
+  * Validates parameter inputs (`days=1..10`, `source="VIIRS_SNPP_NRT"|"VIIRS_NOAA20_NRT"|"MODIS_NRT"`).
+  * Parses upstream CSV responses safely using Python `csv.DictReader` into Pydantic DTOs (`FireDetectionRecord`, `FireDataResponse`).
+  * Returns honest `status="unconfigured"` and setup instructions when key is missing, with no fabricated coordinates or fake fire counts.
+* **Frontend Historical Wildfire Catalog (`HistoricalFiresPage.tsx`)**:
+  * Interactive date range filter selector (1 to 10 days) and satellite instrument selector.
+  * Data provenance notice card and setup guide accordion for acquiring a free NASA FIRMS MAP KEY.
+  * Detailed active fire detection table displaying latitude/longitude, acquisition date & UTC time, satellite/sensor, confidence level, brightness (K), and Fire Radiative Power (FRP in MW).
+* **Risk Map Integration (`RiskMapPage.tsx`)**:
+  * Overlays genuine NASA FIRMS thermal anomaly hotspot markers (`🔥`) on the existing Risk Map canvas when real records are returned.
+  * Displays popups with observation timestamp, coordinates, satellite sensor, confidence rating, and FRP MW value.
+
+---
+
 
 ## 🛠️ Technology Stack
 

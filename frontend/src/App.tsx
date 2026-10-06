@@ -5,8 +5,8 @@ import { DemoNoticeBanner } from './components/DemoNoticeBanner';
 import { OverviewPage } from './pages/OverviewPage';
 import { RiskMapPage } from './pages/RiskMapPage';
 import { ForestHealthPage } from './pages/ForestHealthPage';
+import { HistoricalFiresPage } from './pages/HistoricalFiresPage';
 import { 
-  HistoricalFiresPage, 
   AnalyticsPage, 
   AlertsPage, 
   SettingsPage 
@@ -14,7 +14,8 @@ import {
 import { fetchHealthStatus } from './services/apiService';
 import { fetchCurrentWeather, DEFAULT_WEATHER_LOCATION } from './services/weatherService';
 import { fetchVegetationData } from './services/vegetationService';
-import type { NavigationTab, HealthStatus, GeocodingLocation, WeatherState, VegetationState } from './types';
+import { fetchFireDetections } from './services/fireService';
+import type { NavigationTab, HealthStatus, GeocodingLocation, WeatherState, VegetationState, FireState } from './types';
 import './App.css';
 
 export function App() {
@@ -38,8 +39,18 @@ export function App() {
     error: null,
   });
 
+  // Day 6 NASA FIRMS Historical Wildfire / Active Fire Detection State
+  const [fireDays, setFireDays] = useState<number>(7);
+  const [fireSource, setFireSource] = useState<string>('VIIRS_SNPP_NRT');
+  const [fireState, setFireState] = useState<FireState>({
+    data: null,
+    loading: true,
+    error: null,
+  });
+
   const weatherAbortControllerRef = useRef<AbortController | null>(null);
   const vegAbortControllerRef = useRef<AbortController | null>(null);
+  const fireAbortControllerRef = useRef<AbortController | null>(null);
 
   // Fetch live weather data whenever selectedLocation changes
   const loadWeather = useCallback(async (location: GeocodingLocation, bypassCache = false) => {
@@ -99,10 +110,37 @@ export function App() {
     }
   }, []);
 
+  // Fetch NASA FIRMS historical active-fire detections
+  const loadFireDetections = useCallback(async (days: number, source: string) => {
+    if (fireAbortControllerRef.current) {
+      fireAbortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    fireAbortControllerRef.current = controller;
+
+    setFireState((prev) => ({ ...prev, loading: true, error: null }));
+    try {
+      const data = await fetchFireDetections(days, source, controller.signal);
+      setFireState({ data, loading: false, error: null });
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        setFireState({
+          data: null,
+          loading: false,
+          error: err.message || 'Failed to query historical fire detection service',
+        });
+      }
+    }
+  }, []);
+
   useEffect(() => {
     loadWeather(selectedLocation);
     loadVegetation(selectedLocation);
   }, [selectedLocation, loadWeather, loadVegetation]);
+
+  useEffect(() => {
+    loadFireDetections(fireDays, fireSource);
+  }, [fireDays, fireSource, loadFireDetections]);
 
   const handleRetryWeather = () => {
     loadWeather(selectedLocation, true);
@@ -110,6 +148,10 @@ export function App() {
 
   const handleRetryVegetation = () => {
     loadVegetation(selectedLocation);
+  };
+
+  const handleRetryFires = () => {
+    loadFireDetections(fireDays, fireSource);
   };
 
   useEffect(() => {
@@ -149,6 +191,7 @@ export function App() {
           <RiskMapPage 
             onSelectWeatherLocation={setSelectedLocation}
             activeWeatherLocationName={selectedLocation.name}
+            fireDetections={fireState.data?.detections || []}
           />
         );
       case 'forest-health':
@@ -160,7 +203,16 @@ export function App() {
           />
         );
       case 'historical-fires':
-        return <HistoricalFiresPage />;
+        return (
+          <HistoricalFiresPage 
+            fireState={fireState}
+            days={fireDays}
+            source={fireSource}
+            onChangeDays={setFireDays}
+            onChangeSource={setFireSource}
+            onRetryFire={handleRetryFires}
+          />
+        );
       case 'analytics':
         return <AnalyticsPage />;
       case 'alerts':

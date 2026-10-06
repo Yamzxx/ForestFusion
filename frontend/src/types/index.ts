@@ -1,5 +1,7 @@
 export * from './weather';
 export * from './vegetation';
+export * from './fire';
+
 
 
 export type NavigationTab = 
