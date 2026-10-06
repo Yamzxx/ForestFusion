@@ -6,6 +6,7 @@ from app.api.fire import router as fire_router
 from app.api.data_prep import router as data_prep_router
 from app.api.dataset_analysis import router as dataset_analysis_router
 from app.api.ml import router as ml_router
+from app.api.xgboost import router as xgboost_router
 
 app = FastAPI(
     title="ForestFusion API",
@@ -29,6 +30,7 @@ app.include_router(fire_router, prefix="/api", tags=["FireDetections"])
 app.include_router(data_prep_router, prefix="/api", tags=["DataPreparation"])
 app.include_router(dataset_analysis_router, prefix="/api", tags=["DatasetAnalysis"])
 app.include_router(ml_router, prefix="/api", tags=["MachineLearning"])
+app.include_router(xgboost_router, prefix="/api", tags=["XGBoostMachineLearning"])
 
 @app.get("/")
 async def root():
@@ -42,7 +44,9 @@ async def root():
         "data_readiness_check": "/api/data-readiness",
         "dataset_analysis_check": "/api/dataset-analysis",
         "ml_baseline_predict": "/api/ml/predict",
-        "ml_baseline_evaluation": "/api/ml/baseline-evaluation"
+        "ml_baseline_evaluation": "/api/ml/baseline-evaluation",
+        "ml_xgboost_predict": "/api/ml/xgboost/predict",
+        "ml_model_comparison": "/api/ml/model-comparison"
     }
 
 

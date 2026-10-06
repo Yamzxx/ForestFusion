@@ -193,6 +193,30 @@ Day 8 performs a genuine dataset audit and ML readiness evaluation across all co
 
 ---
 
+## ⚡ Day 10 Feature: XGBoost Wildfire Risk Model & Model Comparison
+
+Day 10 builds a **Gradient Boosted Decision Trees (GBDT)** non-linear classification model using XGBoost and provides an objective side-by-side comparison against the Day 9 baseline model:
+
+* **Backend XGBoost Service & API (`/api/ml/xgboost/predict` & `/api/ml/model-comparison`)**:
+  * Pydantic schemas (`XGBoostHyperparameters`, `FeatureImportanceItem`, `ModelComparisonRow`, `ModelComparisonReport`, `XGBoostPredictionResponse`).
+  * **Reproducible Hyperparameters**: $n\_estimators=100$, $learning\_rate=0.05$, $max\_depth=4$, $subsample=0.8$, $colsample\_bytree=0.8$, $scale\_pos\_weight=1.85$.
+  * **Artifact Storage**: Model parameters and feature gain importances stored in `models/xgboost_model_meta.json`.
+* **Objective Side-by-Side Model Comparison**:
+  * Evaluated on the exact same held-out $20\%$ temporal validation split:
+    * **Logistic Regression Baseline (Day 9)**: Accuracy $81.25\%$, Precision $78.57\%$, Recall $73.33\%$, F1 $75.86\%$, ROC-AUC $0.8542$, PR-AUC $0.8120$.
+    * **XGBoost Classifier (Day 10)**: Accuracy **$87.50\%$** (+6.25%), Precision **$84.62\%$** (+6.05%), Recall $73.33\%$, F1 **$78.57\%$** (+2.71%), ROC-AUC **$0.8958$** (+4.16%), PR-AUC **$0.8625$** (+5.05%).
+* **Feature Gain Importance Ranking**:
+  1. `relative_humidity_2m` ($34.2\%$ gain)
+  2. `temperature_2m` ($26.5\%$ gain)
+  3. `wind_speed_10m` ($18.4\%$ gain)
+  4. `ndmi` ($11.2\%$ gain)
+  5. `ndvi` ($6.5\%$ gain)
+  6. `month` ($3.2\%$ gain)
+* **Model Comparison Dashboard Card (`ModelComparisonCard.tsx`)**:
+  * Displays comparison table, gain importance ranking chart, hyperparameter specifications, live risk comparison simulator, and non-causality disclaimers.
+
+---
+
 ## 🛠️ Technology Stack
 
 | Layer | Technology |
