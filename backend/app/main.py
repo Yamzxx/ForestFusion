@@ -7,6 +7,7 @@ from app.api.data_prep import router as data_prep_router
 from app.api.dataset_analysis import router as dataset_analysis_router
 from app.api.ml import router as ml_router
 from app.api.xgboost import router as xgboost_router
+from app.api.shap import router as shap_router
 
 app = FastAPI(
     title="ForestFusion API",
@@ -31,6 +32,7 @@ app.include_router(data_prep_router, prefix="/api", tags=["DataPreparation"])
 app.include_router(dataset_analysis_router, prefix="/api", tags=["DatasetAnalysis"])
 app.include_router(ml_router, prefix="/api", tags=["MachineLearning"])
 app.include_router(xgboost_router, prefix="/api", tags=["XGBoostMachineLearning"])
+app.include_router(shap_router, prefix="/api", tags=["SHAPExplainability"])
 
 @app.get("/")
 async def root():
@@ -46,7 +48,9 @@ async def root():
         "ml_baseline_predict": "/api/ml/predict",
         "ml_baseline_evaluation": "/api/ml/baseline-evaluation",
         "ml_xgboost_predict": "/api/ml/xgboost/predict",
-        "ml_model_comparison": "/api/ml/model-comparison"
+        "ml_model_comparison": "/api/ml/model-comparison",
+        "ml_shap_explain": "/api/ml/shap/explain",
+        "ml_shap_global_importance": "/api/ml/shap/global-importance"
     }
 
 

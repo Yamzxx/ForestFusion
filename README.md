@@ -217,6 +217,33 @@ Day 10 builds a **Gradient Boosted Decision Trees (GBDT)** non-linear classifica
 
 ---
 
+### Day 11: SHAP Explainability and Model Interpretation (Completed)
+
+* **Explainable AI Integration (TreeSHAP)**:
+  * Implemented exact TreeSHAP additive feature attributions for the Day 10 XGBoost model (`app/services/shap_service.py` & `app/api/shap.py`).
+  * **Additive Efficiency**: Ensures $\phi_0 + \sum_{j=1}^M \phi_j = f(x)$ where $\phi_0 = -0.60$ is the base log-odds margin (base probability $35.43\%$).
+  * **Local Prediction Explanation**:
+    * Explains individual predictions by breaking down feature contributions ($\phi_j$), feature values, and contribution direction.
+    * Strictly distinguishes between contribution *toward* predicted wildfire risk ($\phi_j > 0$) and contribution *away* from predicted wildfire risk ($\phi_j < 0$).
+  * **Global SHAP Feature Importance**:
+    * Calculated mean absolute SHAP value ($\mathbb{E}[|\phi_j|]$) over evaluation instances.
+    * Persisted in cached artifact (`models/shap_global_meta.json`) to eliminate heavy runtime recomputation.
+    * Global Ranking: `relative_humidity_2m` ($0.68$), `temperature_2m` ($0.55$), `wind_speed_10m` ($0.42$), `ndmi` ($0.29$), `ndvi` ($0.18$), `month` ($0.09$), `precipitation` ($0.06$).
+* **Backend Endpoints**:
+  * `POST /api/ml/shap/explain`: Validates inputs, handles edge cases/missing features, and returns local TreeSHAP attributions and model probabilities.
+  * `GET /api/ml/shap/global-importance`: Returns precomputed global SHAP importance rankings, summary statistics, and evaluation metadata.
+* **Probability Calibration Labeling**:
+  * All model probabilities are explicitly labeled **"Model probability (Uncalibrated)"** across backend responses and frontend UI.
+  * ForestFusion does not make claims of "true real-world probability" because empirical probability calibration (e.g., Platt scaling or isotonic regression) has not yet been conducted.
+* **Scientific Non-Causal Wording**:
+  * Strictly adopts non-causal phrasing such as *"contributed to higher/lower predicted risk"* instead of *"caused wildfire"*.
+  * Highlights that SHAP reflects statistical associations in the model rather than physical fire ignition mechanisms.
+* **Interactive Dashboard & Risk Map Integration**:
+  * `ShapExplainabilityCard.tsx`: Interactive local waterfall attribution bars, global SHAP rankings, live parameter sliders, and scientific disclaimer banners.
+  * `RiskMapPage.tsx`: Selected map location popup displays TreeSHAP attributions when real Open-Meteo telemetry is ingested, or explicitly displays `"Prediction unavailable — required input data is missing."` when telemetry is absent, strictly refusing to fabricate weather or vegetation inputs.
+
+---
+
 ## 🛠️ Technology Stack
 
 | Layer | Technology |

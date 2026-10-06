@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { 
@@ -9,11 +9,16 @@ import {
   RotateCcw,
   CheckCircle2,
   Lock,
-  CloudSun
+  CloudSun,
+  Sparkles,
+  Info
 } from 'lucide-react';
 import type { MonitoredZone } from '../types';
-import type { GeocodingLocation } from '../types/weather';
+import type { GeocodingLocation, WeatherState } from '../types/weather';
+import type { VegetationState } from '../types/vegetation';
 import type { FireDetectionRecord } from '../types/fire';
+import type { LocalShapExplanationResponse } from '../types/shapExplanation';
+import { explainLocalPrediction } from '../services/shapService';
 import { DEMO_MONITORED_ZONES } from '../services/apiService';
 
 // Custom marker icon for NASA FIRMS satellite fire thermal anomaly detections
@@ -125,12 +130,16 @@ interface RiskMapPageProps {
   onSelectWeatherLocation?: (location: GeocodingLocation) => void;
   activeWeatherLocationName?: string;
   fireDetections?: FireDetectionRecord[];
+  weatherState?: WeatherState;
+  vegetationState?: VegetationState;
 }
 
 export const RiskMapPage: React.FC<RiskMapPageProps> = ({ 
   onSelectWeatherLocation, 
   activeWeatherLocationName,
-  fireDetections = []
+  fireDetections = [],
+  weatherState,
+  vegetationState
 }) => {
   const [activeTileKey, setActiveTileKey] = useState<TileProviderKey>('streets');
   const [showRiskOverlay, setShowRiskOverlay] = useState<boolean>(false);
@@ -138,11 +147,65 @@ export const RiskMapPage: React.FC<RiskMapPageProps> = ({
   const [showFireLayer, setShowFireLayer] = useState<boolean>(true);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
 
+  // Day 11: Real model prediction & TreeSHAP local explanation state for inspected location
+  const [mapPredictionExpl, setMapPredictionExpl] = useState<LocalShapExplanationResponse | null>(null);
+  const [explLoading, setExplLoading] = useState<boolean>(false);
+  const [explError, setExplError] = useState<string | null>(null);
+
   // Initial geographic extent centered around Western Ghats forest region (India)
   const defaultCenter: [number, number] = [11.70, 76.40];
   const defaultZoom = 10;
 
   const currentTile = TILE_PROVIDERS[activeTileKey];
+
+  // Check if real Open-Meteo telemetry is available for the selected pin
+  const isWeatherAvailableForPin = Boolean(
+    weatherState?.data &&
+    selectedLocation &&
+    Math.abs(selectedLocation.lat - weatherState.selectedLocation.latitude) < 0.05 &&
+    Math.abs(selectedLocation.lng - weatherState.selectedLocation.longitude) < 0.05
+  );
+
+  useEffect(() => {
+    if (isWeatherAvailableForPin && weatherState?.data) {
+      let cancelled = false;
+      setExplLoading(true);
+      setExplError(null);
+
+      const current = weatherState.data.current;
+      const ndvi = vegetationState?.data?.latest_observation?.ndvi ?? 0.45;
+      const ndmi = vegetationState?.data?.latest_observation?.ndmi ?? 0.15;
+
+      explainLocalPrediction({
+        temperature: current.temperature_2m,
+        relative_humidity: current.relative_humidity_2m,
+        wind_speed: current.wind_speed_10m,
+        precipitation: current.precipitation ?? 0.0,
+        ndvi: ndvi,
+        ndmi: ndmi,
+      })
+        .then((res) => {
+          if (!cancelled) {
+            setMapPredictionExpl(res);
+            setExplLoading(false);
+          }
+        })
+        .catch((err) => {
+          if (!cancelled) {
+            setExplError(err.message || 'Failed to explain prediction');
+            setExplLoading(false);
+          }
+        });
+
+      return () => {
+        cancelled = true;
+      };
+    } else {
+      setMapPredictionExpl(null);
+      setExplLoading(false);
+      setExplError(null);
+    }
+  }, [isWeatherAvailableForPin, weatherState?.data, vegetationState?.data]);
 
   const handleLocationClick = (lat: number, lng: number) => {
     setSelectedLocation({ lat, lng });
@@ -150,6 +213,7 @@ export const RiskMapPage: React.FC<RiskMapPageProps> = ({
 
   const handleClearSelection = () => {
     setSelectedLocation(null);
+    setMapPredictionExpl(null);
   };
 
   const handleFetchWeatherForPin = () => {
@@ -274,9 +338,11 @@ export const RiskMapPage: React.FC<RiskMapPageProps> = ({
                 icon={selectedPinIcon}
               >
                 <Popup>
-                  <div className="map-popup-content">
-                    <strong>Selected Map Location</strong>
-                    <div className="popup-grid" style={{ marginTop: '8px' }}>
+                  <div className="map-popup-content" style={{ minWidth: '220px', maxWidth: '280px' }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#0f172a', borderBottom: '1px solid #e2e8f0', paddingBottom: '4px' }}>
+                      📍 Inspected Location
+                    </div>
+                    <div className="popup-grid" style={{ marginTop: '6px' }}>
                       <div className="popup-item">
                         <span>Latitude:</span> <strong>{selectedLocation.lat.toFixed(5)}° N</strong>
                       </div>
@@ -284,6 +350,89 @@ export const RiskMapPage: React.FC<RiskMapPageProps> = ({
                         <span>Longitude:</span> <strong>{selectedLocation.lng.toFixed(5)}° E</strong>
                       </div>
                     </div>
+
+                    {/* Day 11 Requirement 8: Prediction & TreeSHAP Attribution OR Missing Input Notice */}
+                    {!isWeatherAvailableForPin ? (
+                      <div style={{
+                        marginTop: '8px',
+                        padding: '8px',
+                        backgroundColor: '#fffbeb',
+                        border: '1px solid #fde68a',
+                        borderRadius: '6px'
+                      }}>
+                        <div style={{ color: '#b45309', fontWeight: 700, fontSize: '0.74rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <AlertTriangle size={13} />
+                          <span>Prediction unavailable — required input data is missing.</span>
+                        </div>
+                        <p style={{ margin: '4px 0 0 0', fontSize: '0.68rem', color: '#78350f', lineHeight: 1.3 }}>
+                          Real weather telemetry has not been loaded for these coordinates. ForestFusion does not insert fake weather, NDVI, or wildfire values to obtain predictions.
+                        </p>
+                      </div>
+                    ) : explLoading ? (
+                      <div style={{ marginTop: '8px', padding: '6px 8px', fontSize: '0.72rem', color: '#0369a1', backgroundColor: '#f0f9ff', borderRadius: '4px' }}>
+                        Computing real TreeSHAP attribution...
+                      </div>
+                    ) : explError ? (
+                      <div style={{ marginTop: '8px', padding: '6px 8px', fontSize: '0.72rem', color: '#dc2626', backgroundColor: '#fef2f2', borderRadius: '4px' }}>
+                        {explError}
+                      </div>
+                    ) : mapPredictionExpl ? (
+                      <div style={{ marginTop: '8px', borderTop: '1px solid #e2e8f0', paddingTop: '6px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#1e293b' }}>
+                            Model Prediction:
+                          </span>
+                          <span style={{
+                            fontSize: '0.68rem',
+                            padding: '1px 6px',
+                            borderRadius: '4px',
+                            backgroundColor: mapPredictionExpl.predicted_class === 1 ? '#fee2e2' : '#dcfce7',
+                            color: mapPredictionExpl.predicted_class === 1 ? '#991b1b' : '#166534',
+                            fontWeight: 700
+                          }}>
+                            {mapPredictionExpl.predicted_class === 1 ? '🔥 Wildfire Risk' : '🛡️ Low Risk'}
+                          </span>
+                        </div>
+
+                        <div style={{ fontSize: '0.70rem', color: '#475569', marginBottom: '6px' }}>
+                          Model probability: <strong>{(mapPredictionExpl.model_probability * 100).toFixed(1)}%</strong>
+                          <span style={{ fontSize: '0.64rem', color: '#64748b', marginLeft: '4px' }}>(Uncalibrated)</span>
+                        </div>
+
+                        <div style={{ fontSize: '0.70rem', fontWeight: 700, color: '#334155', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <Sparkles size={11} className="text-amber-500" />
+                          <span>Why model predicted this:</span>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                          {mapPredictionExpl.top_contributors.slice(0, 3).map((item) => (
+                            <div
+                              key={item.feature}
+                              style={{
+                                fontSize: '0.66rem',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                padding: '2px 5px',
+                                backgroundColor: item.shap_value >= 0 ? '#fff1f2' : '#f0fdf4',
+                                borderRadius: '3px',
+                                borderLeft: `3px solid ${item.shap_value >= 0 ? '#e11d48' : '#16a34a'}`
+                              }}
+                            >
+                              <span style={{ color: '#1e293b' }}>
+                                {item.feature}: {typeof item.feature_value === 'number' ? item.feature_value.toFixed(1) : item.feature_value}
+                              </span>
+                              <span style={{ fontWeight: 600, color: item.shap_value >= 0 ? '#be123c' : '#15803d' }}>
+                                {item.shap_value >= 0 ? '+' : ''}{item.shap_value.toFixed(2)} ({item.shap_value >= 0 ? '↑ risk' : '↓ risk'})
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                        <div style={{ marginTop: '5px', fontSize: '0.62rem', color: '#64748b', fontStyle: 'italic', lineHeight: 1.25 }}>
+                          SHAP explains model behavior; it does not prove physical wildfire causation.
+                        </div>
+                      </div>
+                    ) : null}
+
                     {onSelectWeatherLocation && (
                       <button
                         type="button"
@@ -294,9 +443,9 @@ export const RiskMapPage: React.FC<RiskMapPageProps> = ({
                           backgroundColor: '#0284c7',
                           color: '#ffffff',
                           border: 'none',
-                          padding: '4px 8px',
+                          padding: '5px 8px',
                           borderRadius: '4px',
-                          fontSize: '0.75rem',
+                          fontSize: '0.72rem',
                           fontWeight: 600,
                           cursor: 'pointer'
                         }}
@@ -304,7 +453,7 @@ export const RiskMapPage: React.FC<RiskMapPageProps> = ({
                         🌤️ Fetch Open-Meteo Weather Here
                       </button>
                     )}
-                    <div className="popup-footer" style={{ marginTop: '8px', color: '#64748b' }}>
+                    <div className="popup-footer" style={{ marginTop: '6px', color: '#64748b', fontSize: '0.65rem' }}>
                       <em>Click anywhere on map to inspect new coordinates.</em>
                     </div>
                   </div>

@@ -192,6 +192,8 @@ export function App() {
             onSelectWeatherLocation={setSelectedLocation}
             activeWeatherLocationName={selectedLocation.name}
             fireDetections={fireState.data?.detections || []}
+            weatherState={weatherState}
+            vegetationState={vegetationState}
           />
         );
       case 'forest-health':

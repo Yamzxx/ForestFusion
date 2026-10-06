@@ -8,6 +8,7 @@ import { WeatherDetailCard } from '../components/WeatherDetailCard';
 import { DataReadinessCard } from '../components/DataReadinessCard';
 import { BaselineModelCard } from '../components/BaselineModelCard';
 import { ModelComparisonCard } from '../components/ModelComparisonCard';
+import { ShapExplainabilityCard } from '../components/ShapExplainabilityCard';
 import type { WeatherState, GeocodingLocation } from '../types/weather';
 import type { VegetationState } from '../types/vegetation';
 import { DEMO_MONITORED_ZONES, DEMO_HISTORICAL_TREND, DEMO_RECENT_OBSERVATIONS } from '../services/apiService';
@@ -134,6 +135,15 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
       {/* Day 10 XGBoost Classifier & Model Comparison Card */}
       <div className="section-row">
         <ModelComparisonCard 
+          initialTemperature={data?.current.temperature_2m || 34.0}
+          initialHumidity={data?.current.relative_humidity_2m || 22.0}
+          initialWindSpeed={data?.current.wind_speed_10m || 21.0}
+        />
+      </div>
+
+      {/* Day 11 SHAP Explainability & Model Interpretation Card */}
+      <div className="section-row">
+        <ShapExplainabilityCard 
           initialTemperature={data?.current.temperature_2m || 34.0}
           initialHumidity={data?.current.relative_humidity_2m || 22.0}
           initialWindSpeed={data?.current.wind_speed_10m || 21.0}
