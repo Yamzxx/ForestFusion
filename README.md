@@ -173,6 +173,26 @@ Day 7 establishes the **Data Preparation and Feature Engineering Architecture** 
 
 ---
 
+## 🔬 Day 8 Feature: Dataset Analysis & ML Readiness Assessment
+
+Day 8 performs a genuine dataset audit and ML readiness evaluation across all connected environmental data streams prior to model training:
+
+* **Backend Analysis Service (`/api/dataset-analysis`)**:
+  * Pydantic schemas (`DatasetAnalysisReport`, `SourceCoverageDetail`, `QualityAnalysisMetrics`, `TemporalSpatialDistribution`, `FireDataAnalysisDetail`, `FeatureLeakageAudit`).
+  * **Real Data Auditing**: Calculates source record counts, temporal spans, geographic extent, missingness percentages, duplicate keys, and invalid value counts without inventing synthetic figures.
+* **Target / Label Defensibility Guardrail**:
+  * Enforces the scientific rule that satellite radiometer thermal anomalies (hotspots) are NOT automatically confirmed ground wildfires.
+  * Prevents converting missing satellite detections into arbitrary binary $0$ ("no fire") labels, which causes severe false negative label noise.
+* **Feature Leakage Audit**:
+  * Audits all 16 candidate features (`temperature_2m`, `relative_humidity_2m`, `ndvi`, `ndmi`, `nbr`, `cloud_cover`, `spatial`, `temporal`) to ensure zero predictive target leakage.
+* **ML Readiness Classification**:
+  * Classifies the dataset state strictly based on empirical evidence as: `PARTIALLY READY — DATA QUALITY/CONFIGURATION WORK REQUIRED`.
+  * Identifies the primary blocker: pending API credentials in `backend/.env` (`COPERNICUS_CLIENT_ID` and `NASA_FIRMS_MAP_KEY`) and the need for ground-truth confirmed wildfire incident perimeters.
+* **Analytics Tab Integration (`DatasetAnalysisCard.tsx`)**:
+  * Replaces the static analytics placeholder with an interactive Dataset Analysis & ML Readiness Dashboard.
+
+---
+
 ## 🛠️ Technology Stack
 
 | Layer | Technology |
