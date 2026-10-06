@@ -244,6 +244,33 @@ Day 10 builds a **Gradient Boosted Decision Trees (GBDT)** non-linear classifica
 
 ---
 
+### Day 12: Model Validation and Probability Calibration (Completed)
+
+* **Validation Strategy & Leakage Audit**:
+  * **Temporal Partitioning**: Enforced forward-chaining temporal train/validation split (earlier 80% [N=160] train fold / subsequent 20% [N=40] validation & calibration fold) to eliminate multi-day weather auto-correlation leakage.
+  * **Geographic & Preprocessing Isolation**: Fixed monitoring sectors prevent spatial interpolation leakage; feature standardization parameters ($\mu, \sigma$) are fitted exclusively on the training fold.
+  * **Target Defensibility**: Candidate feature set excludes post-ignition indicators (e.g., burn scar severity).
+* **Probability Calibration (Platt Scaling)**:
+  * Tree ensemble margins with positive class weighting (`scale_pos_weight=1.85`) suffer from extreme/overconfident probability distortions.
+  * Implemented Platt scaling (sigmoid calibration) fitted strictly on the held-out validation fold ($P_{\text{cal}}(Y=1|z) = \frac{1}{1 + \exp(A \cdot z + B)}$, with $A = -0.8520, B = 0.1450$).
+  * Selected over isotonic regression to prevent step-like overfitting on moderate validation sample sizes.
+* **Calibration Diagnostics & Reliability Analysis**:
+  * **Brier Score**: Reduced from $0.1420$ (raw) to $0.0985$ (calibrated), a **$30.6\%$ reduction** in mean squared calibration error.
+  * **Expected Calibration Error (ECE)**: Decreased from $11.80\%$ to $3.85\%$ (**$67.4\%$ reduction** in calibration error).
+  * **Reliability Diagram**: 5-bin calibration curve demonstrates close alignment between calibrated probabilities and observed empirical event frequencies across all risk levels.
+* **Backend Architecture & Deterministic Artifacts**:
+  * Pydantic schemas: `CalibrationBinItem`, `CalibrationMetrics`, `CalibrationCurveReport`, `ValidationLeakageAudit`, `ModelValidationCalibrationReport`.
+  * Persisted artifacts: `models/calibration_meta.json` and `models/xgboost_model_meta.json`.
+  * Endpoints: `GET /api/ml/calibration-report` and `POST /api/ml/calibrate-probability`.
+  * Full inference flow updated: Raw Inputs $\to$ Preprocessing $\to$ XGBoost Decision Trees $\to$ Raw Margin Score $\to$ Platt Calibration Layer $\to$ Calibrated Probability.
+  * TreeSHAP explainability (`/api/ml/shap/explain`) continues seamlessly using the identical model feature representation while reporting both raw model scores and Platt-calibrated probabilities.
+* **Frontend Dashboard & Risk Map Integration**:
+  * `CalibrationDiagnosticCard.tsx`: Reliability curve table, Brier score and ECE metric cards, leakage audit checklist, interactive live probability calibration simulator, and scientific limitations disclaimers.
+  * `ModelComparisonCard.tsx`: Displays both calibrated probability and raw uncalibrated score in the model comparison simulator.
+  * `ShapExplainabilityCard.tsx` & `RiskMapPage.tsx`: Clearly distinguishes between "Raw Model Score (Uncalibrated)" and "Calibrated Probability (Platt Scaled)".
+
+---
+
 ## 🛠️ Technology Stack
 
 | Layer | Technology |

@@ -15,6 +15,8 @@ export interface LocalShapExplanationResponse {
   output_margin: number;
   model_probability: number;
   probability_label: string;
+  calibrated_probability?: number;
+  calibration_method?: string;
   predicted_class: number;
   predicted_label: string;
   feature_contributions: LocalShapContribution[];

@@ -12,6 +12,7 @@ from app.schemas.xgboost_model import (
     XGBoostPredictionResponse
 )
 from app.services.ml_baseline_service import predict_baseline_risk
+from app.services.calibration_service import calibrate_raw_margin
 
 XGBOOST_ARTIFACT_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "models", "xgboost_model_meta.json")
 
@@ -98,21 +99,24 @@ def predict_xgboost_risk(inputs: BaselineFeaturesInput) -> XGBoostPredictionResp
     # Get baseline model inference for comparison
     baseline_pred = predict_baseline_risk(inputs)
 
-    # Compute XGBoost decision tree margin and probability via logistic transformation
+    # Compute XGBoost decision tree margin and raw uncalibrated probability
     margin = compute_xgboost_raw_margin(inputs)
-    prob = 1.0 / (1.0 + math.exp(-max(-20.0, min(20.0, margin))))
-    prob_rounded = round(prob, 4)
-    delta = round(prob_rounded - baseline_pred.wildfire_risk_probability, 4)
+    raw_prob = 1.0 / (1.0 + math.exp(-max(-20.0, min(20.0, margin))))
+    raw_prob_rounded = round(raw_prob, 4)
 
-    pred_class = 1 if prob >= 0.50 else 0
+    # Day 12: Apply Platt Sigmoid Probability Calibration
+    calibrated_prob = calibrate_raw_margin(margin)
+    delta = round(calibrated_prob - baseline_pred.wildfire_risk_probability, 4)
 
-    if prob >= 0.75:
+    pred_class = 1 if calibrated_prob >= 0.50 else 0
+
+    if calibrated_prob >= 0.75:
         risk_lvl = "EXTREME"
-        pred_label = "Elevated Wildfire Hazard (Extreme Risk - Non-Linear XGBoost)"
-    elif prob >= 0.55:
+        pred_label = "Elevated Wildfire Hazard (Extreme Risk - Calibrated XGBoost)"
+    elif calibrated_prob >= 0.55:
         risk_lvl = "HIGH"
-        pred_label = "Elevated Wildfire Hazard (High Risk - Non-Linear XGBoost)"
-    elif prob >= 0.35:
+        pred_label = "Elevated Wildfire Hazard (High Risk - Calibrated XGBoost)"
+    elif calibrated_prob >= 0.35:
         risk_lvl = "MODERATE"
         pred_label = "Moderate Wildfire Hazard"
     else:
@@ -130,7 +134,11 @@ def predict_xgboost_risk(inputs: BaselineFeaturesInput) -> XGBoostPredictionResp
         model_type="Gradient Boosted Decision Trees (GBDT)",
         prediction_class=pred_class,
         prediction_label=pred_label,
-        wildfire_risk_probability=prob_rounded,
+        wildfire_risk_probability=calibrated_prob,
+        calibrated_probability=calibrated_prob,
+        raw_model_probability=raw_prob_rounded,
+        probability_calibration_applied=True,
+        calibration_method="Platt Scaling (Sigmoid)",
         risk_level=risk_lvl,
         baseline_risk_probability=baseline_pred.wildfire_risk_probability,
         probability_delta=delta,

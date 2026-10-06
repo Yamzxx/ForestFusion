@@ -56,6 +56,10 @@ export interface XGBoostPredictionResponse {
   prediction_class: number;
   prediction_label: string;
   wildfire_risk_probability: number;
+  calibrated_probability?: number;
+  raw_model_probability?: number;
+  probability_calibration_applied?: boolean;
+  calibration_method?: string;
   risk_level: 'LOW' | 'MODERATE' | 'HIGH' | 'EXTREME';
   baseline_risk_probability: number;
   probability_delta: number;

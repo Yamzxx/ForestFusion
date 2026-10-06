@@ -17,6 +17,8 @@ class LocalShapExplanationResponse(BaseModel):
     output_margin: float  # phi_0 + sum(phi_j)
     model_probability: float  # Uncalibrated model probability sigmoid(output_margin)
     probability_label: str = "Model probability (Uncalibrated)"
+    calibrated_probability: Optional[float] = None  # Platt-calibrated probability
+    calibration_method: str = "Platt Scaling (Sigmoid)"
     predicted_class: int  # 0 or 1
     predicted_label: str
     feature_contributions: List[LocalShapContribution]

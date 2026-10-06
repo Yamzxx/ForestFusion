@@ -249,11 +249,16 @@ export const ModelComparisonCard: React.FC<ModelComparisonCardProps> = ({
 
                     <div>
                       <span style={{ fontSize: '0.7rem', color: '#0369a1', textTransform: 'uppercase', fontWeight: 700 }}>
-                        XGBoost CLASSIFIER (NON-LINEAR)
+                        XGBoost (PLATT-CALIBRATED)
                       </span>
                       <div style={{ fontSize: '1.4rem', fontWeight: 800, color: getRiskColor(xgboostPred.risk_level), marginTop: '2px' }}>
                         {(xgboostPred.wildfire_risk_probability * 100).toFixed(1)}%
                       </div>
+                      {xgboostPred.raw_model_probability !== undefined && (
+                        <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: '2px' }}>
+                          Raw uncalibrated: {(xgboostPred.raw_model_probability * 100).toFixed(1)}%
+                        </div>
+                      )}
                     </div>
                   </div>
 

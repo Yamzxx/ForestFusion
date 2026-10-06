@@ -1,0 +1,59 @@
+{
+  "model_name": "XGBoost Classifier v1.0",
+  "model_type": "Gradient Boosted Decision Trees (GBDT)",
+  "trained_timestamp": "2026-10-06 20:00:00 UTC",
+  "hyperparameters": {
+    "n_estimators": 100,
+    "learning_rate": 0.05,
+    "max_depth": 4,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "gamma": 0.1,
+    "min_child_weight": 1,
+    "scale_pos_weight": 1.85,
+    "random_state": 42
+  },
+  "feature_importances": [
+    {
+      "feature_name": "relative_humidity_2m",
+      "gain_importance": 0.342,
+      "weight_importance": 42,
+      "rank": 1
+    },
+    {
+      "feature_name": "temperature_2m",
+      "gain_importance": 0.265,
+      "weight_importance": 35,
+      "rank": 2
+    },
+    {
+      "feature_name": "wind_speed_10m",
+      "gain_importance": 0.184,
+      "weight_importance": 28,
+      "rank": 3
+    },
+    {
+      "feature_name": "ndmi",
+      "gain_importance": 0.112,
+      "weight_importance": 19,
+      "rank": 4
+    },
+    {
+      "feature_name": "ndvi",
+      "gain_importance": 0.065,
+      "weight_importance": 14,
+      "rank": 5
+    },
+    {
+      "feature_name": "month",
+      "gain_importance": 0.032,
+      "weight_importance": 8,
+      "rank": 6
+    }
+  ],
+  "calibration": {
+    "method": "Platt Scaling (Sigmoid)",
+    "artifact_ref": "models/calibration_meta.json",
+    "brier_score_calibrated": 0.0985
+  }
+}

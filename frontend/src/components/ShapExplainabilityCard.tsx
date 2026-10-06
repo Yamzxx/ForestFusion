@@ -128,15 +128,20 @@ export const ShapExplainabilityCard: React.FC<ShapExplainabilityCardProps> = ({
                   MODEL PREDICTION &amp; PROBABILITY
                 </span>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginTop: '4px' }}>
-                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: getRiskColor(localExplanation.model_probability) }}>
-                    {(localExplanation.model_probability * 100).toFixed(1)}%
+                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: getRiskColor(localExplanation.calibrated_probability ?? localExplanation.model_probability) }}>
+                    {((localExplanation.calibrated_probability ?? localExplanation.model_probability) * 100).toFixed(1)}%
                   </span>
                   <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#334155' }}>
                     {localExplanation.predicted_label}
                   </span>
+                  {localExplanation.calibrated_probability !== undefined && (
+                    <span style={{ fontSize: '0.72rem', backgroundColor: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+                      PLATT-CALIBRATED
+                    </span>
+                  )}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
-                  Probability Metric: <strong>{localExplanation.probability_label}</strong> &bull; Base Expectation (&phi;<sub>0</sub>): <strong>{(localExplanation.base_probability * 100).toFixed(1)}%</strong>
+                  Raw Model Score (Uncalibrated): <strong>{(localExplanation.model_probability * 100).toFixed(1)}%</strong> &bull; Base Expectation (&phi;<sub>0</sub>): <strong>{(localExplanation.base_probability * 100).toFixed(1)}%</strong>
                 </div>
               </div>
 

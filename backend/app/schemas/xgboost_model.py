@@ -47,10 +47,17 @@ class XGBoostPredictionResponse(BaseModel):
     model_type: str = "Gradient Boosted Decision Trees (GBDT)"
     prediction_class: int  # 0 or 1
     prediction_label: str
-    wildfire_risk_probability: float
+    wildfire_risk_probability: float  # Calibrated probability
+    calibrated_probability: float
+    raw_model_probability: float
+    probability_calibration_applied: bool = True
+    calibration_method: str = "Platt Scaling (Sigmoid)"
     risk_level: str  # "LOW", "MODERATE", "HIGH", "EXTREME"
     baseline_risk_probability: float
-    probability_delta: float  # XGBoost prob - Baseline prob
+    probability_delta: float  # XGBoost calibrated prob - Baseline prob
     top_influential_features: List[Dict[str, Any]]
     input_validation_status: str = "valid"
-    scientific_disclaimer: str = "RESEARCH PROTOTYPE NOTICE: Non-linear XGBoost probabilities depend on multi-variate tree splits."
+    scientific_disclaimer: str = (
+        "RESEARCH PROTOTYPE NOTICE: Non-linear XGBoost raw outputs are calibrated via Platt scaling on held-out "
+        "validation data to estimate empirical class frequencies, NOT deterministic real-world wildfire guarantees."
+    )

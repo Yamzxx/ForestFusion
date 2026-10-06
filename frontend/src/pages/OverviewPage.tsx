@@ -8,6 +8,7 @@ import { WeatherDetailCard } from '../components/WeatherDetailCard';
 import { DataReadinessCard } from '../components/DataReadinessCard';
 import { BaselineModelCard } from '../components/BaselineModelCard';
 import { ModelComparisonCard } from '../components/ModelComparisonCard';
+import { CalibrationDiagnosticCard } from '../components/CalibrationDiagnosticCard';
 import { ShapExplainabilityCard } from '../components/ShapExplainabilityCard';
 import type { WeatherState, GeocodingLocation } from '../types/weather';
 import type { VegetationState } from '../types/vegetation';
@@ -139,6 +140,11 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           initialHumidity={data?.current.relative_humidity_2m || 22.0}
           initialWindSpeed={data?.current.wind_speed_10m || 21.0}
         />
+      </div>
+
+      {/* Day 12 Model Validation & Probability Calibration Card */}
+      <div className="section-row">
+        <CalibrationDiagnosticCard />
       </div>
 
       {/* Day 11 SHAP Explainability & Model Interpretation Card */}

@@ -11,6 +11,7 @@ from app.schemas.shap_explanation import (
     GlobalShapReport
 )
 from app.services.xgboost_service import compute_xgboost_raw_margin
+from app.services.calibration_service import calibrate_raw_margin
 
 SHAP_GLOBAL_ARTIFACT_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "models", "shap_global_meta.json")
 
@@ -186,12 +187,15 @@ def explain_prediction_with_shap(inputs: BaselineFeaturesInput) -> LocalShapExpl
     prob = 1.0 / (1.0 + math.exp(-clamped_margin))
     prob_rounded = round(prob, 4)
 
-    pred_class = 1 if prob >= 0.50 else 0
-    if prob >= 0.75:
+    # Day 12: Compute Platt-calibrated probability
+    calibrated_prob = calibrate_raw_margin(raw_margin)
+
+    pred_class = 1 if calibrated_prob >= 0.50 else 0
+    if calibrated_prob >= 0.75:
         pred_label = "Elevated Wildfire Hazard (Extreme Risk)"
-    elif prob >= 0.55:
+    elif calibrated_prob >= 0.55:
         pred_label = "Elevated Wildfire Hazard (High Risk)"
-    elif prob >= 0.35:
+    elif calibrated_prob >= 0.35:
         pred_label = "Moderate Wildfire Hazard"
     else:
         pred_label = "Low Wildfire Hazard"
@@ -204,6 +208,8 @@ def explain_prediction_with_shap(inputs: BaselineFeaturesInput) -> LocalShapExpl
         output_margin=round(raw_margin, 4),
         model_probability=prob_rounded,
         probability_label="Model probability (Uncalibrated)",
+        calibrated_probability=calibrated_prob,
+        calibration_method="Platt Scaling (Sigmoid)",
         predicted_class=pred_class,
         predicted_label=pred_label,
         feature_contributions=contributions,

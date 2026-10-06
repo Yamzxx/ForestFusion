@@ -395,8 +395,11 @@ export const RiskMapPage: React.FC<RiskMapPageProps> = ({
                         </div>
 
                         <div style={{ fontSize: '0.70rem', color: '#475569', marginBottom: '6px' }}>
-                          Model probability: <strong>{(mapPredictionExpl.model_probability * 100).toFixed(1)}%</strong>
-                          <span style={{ fontSize: '0.64rem', color: '#64748b', marginLeft: '4px' }}>(Uncalibrated)</span>
+                          Calibrated probability: <strong>{((mapPredictionExpl.calibrated_probability ?? mapPredictionExpl.model_probability) * 100).toFixed(1)}%</strong>
+                          <span style={{ fontSize: '0.64rem', color: '#047857', marginLeft: '4px', fontWeight: 600 }}>(Platt Scaled)</span>
+                          <div style={{ fontSize: '0.64rem', color: '#64748b' }}>
+                            Raw model score: {(mapPredictionExpl.model_probability * 100).toFixed(1)}% (Uncalibrated)
+                          </div>
                         </div>
 
                         <div style={{ fontSize: '0.70rem', fontWeight: 700, color: '#334155', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '3px' }}>
