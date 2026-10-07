@@ -7,10 +7,10 @@ import { RiskMapPage } from './pages/RiskMapPage';
 import { ForestHealthPage } from './pages/ForestHealthPage';
 import { HistoricalFiresPage } from './pages/HistoricalFiresPage';
 import { DecisionSupportPage } from './pages/DecisionSupportPage';
-import { 
-  AnalyticsPage, 
-  SettingsPage 
-} from './pages/PlaceholderPages';
+import { ModelAnalyticsPage } from './pages/ModelAnalyticsPage';
+import { DataSourcesPage } from './pages/DataSourcesPage';
+import { ModelInfoPage } from './pages/ModelInfoPage';
+import { SettingsPage } from './pages/PlaceholderPages';
 import { fetchHealthStatus } from './services/apiService';
 import { fetchCurrentWeather, DEFAULT_WEATHER_LOCATION } from './services/weatherService';
 import { fetchVegetationData } from './services/vegetationService';
@@ -182,6 +182,8 @@ export function App() {
           <OverviewPage 
             weatherState={weatherState} 
             vegetationState={vegetationState}
+            fireDetections={fireState.data?.detections || []}
+            healthStatus={healthStatus}
             onRetryWeather={handleRetryWeather}
             onSelectLocation={setSelectedLocation}
           />
@@ -196,6 +198,15 @@ export function App() {
             vegetationState={vegetationState}
           />
         );
+      case 'decision-support':
+      case 'alerts':
+        return (
+          <DecisionSupportPage 
+            selectedLocation={selectedLocation}
+            weatherState={weatherState}
+            vegetationState={vegetationState}
+          />
+        );
       case 'forest-health':
         return (
           <ForestHealthPage 
@@ -204,7 +215,9 @@ export function App() {
             onRetryVegetation={handleRetryVegetation}
           />
         );
+      case 'satellite-observations':
       case 'historical-fires':
+      case 'temporal-analysis':
         return (
           <HistoricalFiresPage 
             fireState={fireState}
@@ -216,16 +229,23 @@ export function App() {
             selectedLocation={selectedLocation}
           />
         );
+      case 'model-analytics':
       case 'analytics':
-        return <AnalyticsPage />;
-      case 'alerts':
+        return <ModelAnalyticsPage />;
+      case 'data-sources':
         return (
-          <DecisionSupportPage 
-            selectedLocation={selectedLocation}
+          <DataSourcesPage 
+            healthStatus={healthStatus}
             weatherState={weatherState}
             vegetationState={vegetationState}
+            fireState={fireState}
+            onRetryWeather={handleRetryWeather}
+            onRetryVegetation={handleRetryVegetation}
+            onRetryFires={handleRetryFires}
           />
         );
+      case 'model-info':
+        return <ModelInfoPage />;
       case 'settings':
         return <SettingsPage />;
       default:
@@ -233,6 +253,8 @@ export function App() {
           <OverviewPage 
             weatherState={weatherState} 
             vegetationState={vegetationState}
+            fireDetections={fireState.data?.detections || []}
+            healthStatus={healthStatus}
             onRetryWeather={handleRetryWeather}
             onSelectLocation={setSelectedLocation}
           />

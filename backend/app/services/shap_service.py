@@ -2,7 +2,7 @@ import os
 import json
 import math
 from datetime import datetime, timezone
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 from app.schemas.ml_model import BaselineFeaturesInput
 from app.schemas.shap_explanation import (
     LocalShapContribution,
