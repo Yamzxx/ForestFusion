@@ -1,9 +1,7 @@
 import type { ModelValidationCalibrationReport, CalibrateProbabilityResponse } from '../types/calibration';
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
-
 export async function fetchCalibrationReport(signal?: AbortSignal): Promise<ModelValidationCalibrationReport> {
-  const response = await fetch(`${API_BASE_URL}/ml/calibration-report`, {
+  const response = await fetch('/api/ml/calibration-report', {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
     signal,
@@ -22,7 +20,7 @@ export async function calibrateProbability(
   raw_margin?: number,
   signal?: AbortSignal
 ): Promise<CalibrateProbabilityResponse> {
-  const response = await fetch(`${API_BASE_URL}/ml/calibrate-probability`, {
+  const response = await fetch('/api/ml/calibrate-probability', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
