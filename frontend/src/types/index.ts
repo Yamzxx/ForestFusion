@@ -7,11 +7,18 @@ export * from './fire';
 export type NavigationTab = 
   | 'overview' 
   | 'risk-map' 
+  | 'decision-support'
   | 'forest-health' 
+  | 'satellite-observations' 
+  | 'temporal-analysis' 
+  | 'model-analytics' 
+  | 'data-sources' 
+  | 'model-info' 
+  | 'settings'
+  // Backward compatibility aliases
+  | 'alerts'
   | 'historical-fires' 
-  | 'analytics' 
-  | 'alerts' 
-  | 'settings';
+  | 'analytics';
 
 
 export interface HealthStatus {

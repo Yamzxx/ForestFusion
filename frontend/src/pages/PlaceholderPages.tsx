@@ -1,87 +1,72 @@
 import React from 'react';
 import { 
-  Map, 
-  Trees, 
-  Flame, 
-  BarChart3, 
-  Bell, 
   Settings, 
   Lock, 
-  Cpu, 
+  Server, 
   Database, 
-  Globe 
+  Sliders, 
+  CheckCircle2, 
+  ShieldCheck 
 } from 'lucide-react';
-
-interface StageCardProps {
-  stage: string;
-  title: string;
-  description: string;
-  items: string[];
-}
-
-const StageModuleCard: React.FC<StageCardProps> = ({ stage, title, description, items }) => (
-  <div className="module-stage-card">
-    <div className="stage-badge">{stage}</div>
-    <h4>{title}</h4>
-    <p>{description}</p>
-    <ul>
-      {items.map((item, idx) => (
-        <li key={idx}>✓ {item}</li>
-      ))}
-    </ul>
-  </div>
-);
-
-import { DatasetAnalysisCard } from '../components/DatasetAnalysisCard';
-
-export const AnalyticsPage: React.FC = () => (
-  <div className="page-container analytics-page">
-    <DatasetAnalysisCard />
-  </div>
-);
-
-export const AlertsPage: React.FC = () => (
-  <div className="page-container placeholder-page">
-    <div className="placeholder-hero">
-      <Bell className="hero-icon" />
-      <h2>Wildfire Risk Alert & Dispatch Center</h2>
-      <p className="hero-desc">
-        Automated threshold alerts when high risk scores (&gt;0.75) coincide with high wind speeds (&gt;20 km/h) and low relative humidity (&lt;25%).
-      </p>
-      <div className="hero-status-tag">
-        <Globe className="tag-icon" /> Deferred to Stage 6 (Alert Engine & API Triggers)
-      </div>
-    </div>
-  </div>
-);
+export { ModelAnalyticsPage as AnalyticsPage } from './ModelAnalyticsPage';
+export { DecisionSupportPage as AlertsPage } from './DecisionSupportPage';
 
 export const SettingsPage: React.FC = () => (
-  <div className="page-container placeholder-page">
-    <div className="placeholder-hero">
-      <Settings className="hero-icon" />
-      <h2>ForestFusion System Configuration</h2>
-      <p className="hero-desc">
-        Configure backend API URLs, Sentinel-2 bounding box coordinates, XGBoost probability thresholds, and local dataset paths.
-      </p>
-      <div className="hero-status-tag">
-        <Lock className="tag-icon" /> Stage 1 System Settings Shell
+  <div className="page-container settings-page">
+    <div className="section-title-wrap" style={{ marginBottom: '20px' }}>
+      <Settings className="section-title-icon" style={{ color: '#1d5234' }} />
+      <div>
+        <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1c2826' }}>
+          ForestFusion System Configuration & Parameters
+        </h2>
+        <p style={{ fontSize: '0.82rem', color: '#72857b' }}>
+          Backend API endpoints, geographic region-of-interest bounds, and probability thresholds
+        </p>
       </div>
     </div>
 
     <div className="settings-preview-card">
-      <h3>Active Prototype Configuration</h3>
-      <div className="setting-row">
-        <span>Backend API Base URL:</span>
-        <code>http://127.0.0.1:8000/api</code>
+      <div className="settings-header">
+        <Server size={16} className="inline-icon" />
+        <h4>Active Platform Configuration</h4>
       </div>
+
       <div className="setting-row">
-        <span>Frontend Vite Proxy:</span>
-        <code>/api -&gt; http://127.0.0.1:8000</code>
+        <span>Backend API Base Route:</span>
+        <code>/api (Vite dev proxy -&gt; http://127.0.0.1:8000)</code>
       </div>
+
       <div className="setting-row">
-        <span>Current Execution Mode:</span>
-        <span className="badge-demo">Academic Stage 1 Prototype Shell</span>
+        <span>Execution Environment:</span>
+        <span className="badge-calib">FastAPI + Vite React Research Architecture</span>
       </div>
+
+      <div className="setting-row">
+        <span>Primary Region of Interest:</span>
+        <span>Western Ghats / Nilgiri Biosphere Reserve (11.5°N - 12.2°N, 76.0°E - 77.0°E)</span>
+      </div>
+
+      <div className="setting-row">
+        <span>Probability Classification Threshold:</span>
+        <code>P(Calibrated) &gt;= 0.35 (Elevated Attention)</code>
+      </div>
+
+      <div className="setting-row">
+        <span>Probability Extreme Threshold:</span>
+        <code>P(Calibrated) &gt;= 0.75 (Very High Attention)</code>
+      </div>
+
+      <div className="setting-row">
+        <span>Active Model Pipeline:</span>
+        <span>XGBoost v1.0 with Platt Sigmoid Probability Calibration</span>
+      </div>
+    </div>
+
+    <div className="settings-info-card" style={{ marginTop: '20px' }}>
+      <ShieldCheck size={16} className="inline-icon" />
+      <p style={{ fontSize: '0.82rem', color: '#4a5d54', margin: 0 }}>
+        Environment configurations are managed via <code>backend/.env</code> and <code>frontend/.env</code>. To update API tokens (such as <code>NASA_FIRMS_MAP_KEY</code> or Copernicus credentials), update the backend environment file and reload the uvicorn process.
+      </p>
     </div>
   </div>
 );

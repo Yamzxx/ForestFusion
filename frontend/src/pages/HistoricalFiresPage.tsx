@@ -53,9 +53,9 @@ export const HistoricalFiresPage: React.FC<HistoricalFiresPageProps> = ({
           <div className="panel-header-title">
             <Flame className="panel-header-icon" style={{ color: '#ea580c' }} />
             <div>
-              <h3>Historical Wildfire Catalog & Temporal Risk Analysis</h3>
+              <h3>Satellite Thermal Anomaly Observations & Temporal Risk Analysis</h3>
               <span className="panel-subtitle">
-                NASA FIRMS satellite thermal anomalies, historical environmental trends, and calibrated model risk evaluation
+                NASA FIRMS satellite radiometer thermal anomaly detections, historical environmental trends, and calibrated model risk evaluation
               </span>
             </div>
           </div>
