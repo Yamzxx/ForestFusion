@@ -9,6 +9,7 @@ from app.api.ml import router as ml_router
 from app.api.xgboost import router as xgboost_router
 from app.api.shap import router as shap_router
 from app.api.calibration import router as calibration_router
+from app.api.spatial import router as spatial_router
 
 app = FastAPI(
     title="ForestFusion API",
@@ -35,6 +36,7 @@ app.include_router(ml_router, prefix="/api", tags=["MachineLearning"])
 app.include_router(xgboost_router, prefix="/api", tags=["XGBoostMachineLearning"])
 app.include_router(shap_router, prefix="/api", tags=["SHAPExplainability"])
 app.include_router(calibration_router, prefix="/api", tags=["ModelValidationAndCalibration"])
+app.include_router(spatial_router, prefix="/api", tags=["SpatialPrediction"])
 
 @app.get("/")
 async def root():
@@ -54,7 +56,9 @@ async def root():
         "ml_shap_explain": "/api/ml/shap/explain",
         "ml_shap_global_importance": "/api/ml/shap/global-importance",
         "ml_calibration_report": "/api/ml/calibration-report",
-        "ml_calibrate_probability": "/api/ml/calibrate-probability"
+        "ml_calibrate_probability": "/api/ml/calibrate-probability",
+        "ml_spatial_prediction": "/api/ml/spatial-prediction",
+        "ml_spatial_predictions_batch": "/api/ml/spatial-predictions-batch"
     }
 
 
