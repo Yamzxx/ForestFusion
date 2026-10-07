@@ -15,6 +15,7 @@ interface HeaderProps {
 const TAB_TITLES: Record<string, { title: string; subtitle: string }> = {
   'overview': { title: 'Forest Intelligence Overview', subtitle: 'Real-time environmental observations and calibrated wildfire hazard intelligence' },
   'risk-map': { title: 'Geospatial Risk Map', subtitle: 'Interactive spatial hazard assessment with Sentinel-2 vegetation and satellite thermal detections' },
+  'what-if': { title: 'What-If Risk Simulator', subtitle: 'Explore how modified environmental conditions affect the model\'s output' },
   'decision-support': { title: 'Risk Attention & Decision Support', subtitle: 'Analyst-oriented evidence, Platt-calibrated probabilities, and TreeSHAP feature attributions' },
   'forest-health': { title: 'Forest Health Indicators', subtitle: 'Copernicus Sentinel-2 multispectral vegetation vigor tracking (NDVI, NDMI, NBR)' },
   'satellite-observations': { title: 'Satellite Thermal Observations', subtitle: 'NASA FIRMS radiometer thermal anomaly detections (VIIRS / MODIS)' },

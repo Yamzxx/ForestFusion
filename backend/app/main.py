@@ -71,6 +71,7 @@ async def root():
         "ml_calibrate_probability": "/api/ml/calibrate-probability",
         "ml_spatial_prediction": "/api/ml/spatial-prediction",
         "ml_spatial_predictions_batch": "/api/ml/spatial-predictions-batch",
+        "ml_scenario_simulation": "/api/ml/scenario-simulation",
         "ml_temporal_analysis": "/api/ml/temporal-analysis",
         "ml_decision_support_evaluate": "/api/ml/decision-support/evaluate",
         "ml_decision_support_attention_list": "/api/ml/decision-support/attention-list"

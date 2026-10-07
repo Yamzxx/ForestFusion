@@ -52,3 +52,38 @@ class SpatialBatchPredictionResponse(BaseModel):
         "Model predictions are computed strictly for monitored locations with verified meteorological "
         "and satellite observations. Predictions are not fabricated across unmonitored locations."
     )
+
+class ScenarioModifiedFeature(BaseModel):
+    feature_name: str
+    display_name: str
+    baseline_value: float
+    scenario_value: float
+    delta_value: float
+    unit: str
+    direction: str  # "increased", "decreased"
+
+class ScenarioSimulationRequest(BaseModel):
+    latitude: float = Field(..., ge=-90.0, le=90.0)
+    longitude: float = Field(..., ge=-180.0, le=180.0)
+    location_name: Optional[str] = None
+    baseline_inputs: BaselineFeaturesInput
+    scenario_inputs: BaselineFeaturesInput
+
+class ScenarioSimulationResponse(BaseModel):
+    location_name: str
+    latitude: float
+    longitude: float
+    baseline_prediction: SpatialPredictionResponse
+    scenario_prediction: SpatialPredictionResponse
+    probability_delta_pp: float
+    raw_margin_delta: float
+    risk_category_changed: bool
+    modified_features_count: int
+    modified_features: List[ScenarioModifiedFeature]
+    top_shap_driver: Optional[str] = None
+    interpretation: str
+    scientific_disclaimer: str = (
+        "SCIENTIFIC NOTICE: Scenario analysis modifies model inputs and evaluates the resulting "
+        "trained model response. It does not establish physical causation and should not be "
+        "interpreted as an operational wildfire forecast."
+    )

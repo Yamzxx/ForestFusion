@@ -7,6 +7,7 @@ export * from './fire';
 export type NavigationTab = 
   | 'overview' 
   | 'risk-map' 
+  | 'what-if'
   | 'decision-support'
   | 'forest-health' 
   | 'satellite-observations' 

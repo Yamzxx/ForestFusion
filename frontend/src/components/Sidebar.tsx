@@ -10,7 +10,8 @@ import {
   Database,
   Cpu,
   Settings, 
-  ShieldAlert 
+  ShieldAlert,
+  SlidersHorizontal
 } from 'lucide-react';
 import type { NavigationTab } from '../types';
 
@@ -39,6 +40,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'RISK INTELLIGENCE',
     items: [
       { id: 'risk-map', label: 'Risk Map', icon: Map },
+      { id: 'what-if', label: 'What-If Simulator', icon: SlidersHorizontal, badge: 'Scenario' },
       { id: 'decision-support', label: 'Decision Support', icon: FileText, badge: 'Platt' }
     ]
   },

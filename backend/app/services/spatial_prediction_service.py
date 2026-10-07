@@ -11,7 +11,10 @@ from app.schemas.spatial_prediction import (
     SpatialPredictionResponse,
     SpatialFeatureTelemetry,
     SpatialBatchPredictionRequest,
-    SpatialBatchPredictionResponse
+    SpatialBatchPredictionResponse,
+    ScenarioModifiedFeature,
+    ScenarioSimulationRequest,
+    ScenarioSimulationResponse
 )
 from app.services.xgboost_service import compute_xgboost_raw_margin
 from app.services.calibration_service import calibrate_raw_margin
@@ -211,3 +214,136 @@ def predict_spatial_batch(batch_req: SpatialBatchPredictionRequest) -> SpatialBa
         total_requested=len(batch_req.locations),
         total_valid=valid_count
     )
+
+def simulate_what_if_scenario(req: ScenarioSimulationRequest) -> ScenarioSimulationResponse:
+    """
+    Execute What-If counterfactual scenario analysis using the canonical prediction pipeline.
+    Reuses:
+    - XGBoost inference
+    - Platt Sigmoid calibration
+    - Risk classification
+    - TreeSHAP feature attributions
+    Strictly preserves scientific integrity: no frontend probability math, no synthetic causal statements.
+    """
+    loc_name = req.location_name or f"Spatial Point ({req.latitude:.3f}°, {req.longitude:.3f}°)"
+
+    # 1. Evaluate baseline using canonical pipeline
+    baseline_req = SpatialPredictionRequest(
+        latitude=req.latitude,
+        longitude=req.longitude,
+        location_name=loc_name,
+        environmental_inputs=req.baseline_inputs
+    )
+    baseline_pred = predict_spatial_wildfire_risk(baseline_req)
+
+    # 2. Evaluate scenario using the exact same canonical pipeline
+    scenario_req = SpatialPredictionRequest(
+        latitude=req.latitude,
+        longitude=req.longitude,
+        location_name=loc_name,
+        environmental_inputs=req.scenario_inputs
+    )
+    scenario_pred = predict_spatial_wildfire_risk(scenario_req)
+
+    # 3. Calculate metrics
+    prob_delta_pp = round((scenario_pred.calibrated_probability - baseline_pred.calibrated_probability) * 100.0, 2)
+    margin_delta = round(scenario_pred.raw_margin - baseline_pred.raw_margin, 4)
+    risk_changed = (scenario_pred.risk_category != baseline_pred.risk_category)
+
+    # 4. Compare feature deltas
+    feature_meta = [
+        ("temperature_2m", "Air Temperature", "°C"),
+        ("relative_humidity_2m", "Relative Humidity", "%"),
+        ("wind_speed_10m", "Wind Speed", "km/h"),
+        ("precipitation", "Precipitation", "mm"),
+        ("ndvi", "NDVI (Greenness)", "index"),
+        ("ndmi", "NDMI (Moisture)", "index"),
+        ("month", "Observation Month", "")
+    ]
+
+    modified_features: List[ScenarioModifiedFeature] = []
+    b_dict = req.baseline_inputs.dict()
+    s_dict = req.scenario_inputs.dict()
+
+    for f_key, display_name, unit in feature_meta:
+        b_val = b_dict.get(f_key)
+        s_val = s_dict.get(f_key)
+        if b_val is not None and s_val is not None:
+            delta = round(float(s_val) - float(b_val), 4)
+            if abs(delta) > 1e-4:
+                direction = "increased" if delta > 0 else "decreased"
+                modified_features.append(
+                    ScenarioModifiedFeature(
+                        feature_name=f_key,
+                        display_name=display_name,
+                        baseline_value=round(float(b_val), 3),
+                        scenario_value=round(float(s_val), 3),
+                        delta_value=delta,
+                        unit=unit,
+                        direction=direction
+                    )
+                )
+
+    # 5. Determine top SHAP attribution driver if SHAP is available
+    top_shap_driver: Optional[str] = None
+    if (
+        baseline_pred.shap_explanation is not None
+        and scenario_pred.shap_explanation is not None
+        and baseline_pred.shap_explanation.feature_contributions
+        and scenario_pred.shap_explanation.feature_contributions
+    ):
+        b_shap_map = {item.feature_name: item.shap_value for item in baseline_pred.shap_explanation.feature_contributions}
+        s_shap_map = {item.feature_name: item.shap_value for item in scenario_pred.shap_explanation.feature_contributions}
+        
+        max_delta = -1.0
+        driver_name = None
+        for f_name, s_val in s_shap_map.items():
+            b_val = b_shap_map.get(f_name, 0.0)
+            diff = abs(s_val - b_val)
+            if diff > max_delta:
+                max_delta = diff
+                driver_name = f_name
+        
+        if driver_name and max_delta > 0.001:
+            top_shap_driver = driver_name
+
+    # 6. Build scientific, non-causal interpretation
+    if prob_delta_pp > 0:
+        interp = (
+            f"Under the modified feature conditions, the calibrated model probability increased by "
+            f"{prob_delta_pp:+.2f} percentage points (from {baseline_pred.calibrated_probability * 100:.1f}% "
+            f"to {scenario_pred.calibrated_probability * 100:.1f}%)."
+        )
+    elif prob_delta_pp < 0:
+        interp = (
+            f"Under the modified feature conditions, the calibrated model probability decreased by "
+            f"{abs(prob_delta_pp):.2f} percentage points (from {baseline_pred.calibrated_probability * 100:.1f}% "
+            f"to {scenario_pred.calibrated_probability * 100:.1f}%)."
+        )
+    else:
+        interp = (
+            f"Under the evaluated conditions, the model's calibrated output remained identical at "
+            f"{baseline_pred.calibrated_probability * 100:.1f}%."
+        )
+
+    if top_shap_driver:
+        interp += f" The largest shift in model feature attribution was associated with {top_shap_driver}."
+    
+    if risk_changed:
+        interp += f" The model classification shifted from {baseline_pred.risk_category} to {scenario_pred.risk_category}."
+
+    return ScenarioSimulationResponse(
+        location_name=loc_name,
+        latitude=req.latitude,
+        longitude=req.longitude,
+        baseline_prediction=baseline_pred,
+        scenario_prediction=scenario_pred,
+        probability_delta_pp=prob_delta_pp,
+        raw_margin_delta=margin_delta,
+        risk_category_changed=risk_changed,
+        modified_features_count=len(modified_features),
+        modified_features=modified_features,
+        top_shap_driver=top_shap_driver,
+        interpretation=interp
+    )
+
