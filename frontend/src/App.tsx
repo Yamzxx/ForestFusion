@@ -6,9 +6,9 @@ import { OverviewPage } from './pages/OverviewPage';
 import { RiskMapPage } from './pages/RiskMapPage';
 import { ForestHealthPage } from './pages/ForestHealthPage';
 import { HistoricalFiresPage } from './pages/HistoricalFiresPage';
+import { DecisionSupportPage } from './pages/DecisionSupportPage';
 import { 
   AnalyticsPage, 
-  AlertsPage, 
   SettingsPage 
 } from './pages/PlaceholderPages';
 import { fetchHealthStatus } from './services/apiService';
@@ -218,7 +218,7 @@ export function App() {
       case 'analytics':
         return <AnalyticsPage />;
       case 'alerts':
-        return <AlertsPage />;
+        return <DecisionSupportPage />;
       case 'settings':
         return <SettingsPage />;
       default:

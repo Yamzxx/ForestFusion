@@ -53,7 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab }) => {
               <IconComponent className="nav-icon" />
               <span className="nav-label">{item.label}</span>
               {item.id === 'alerts' && (
-                <span className="nav-badge">Demo</span>
+                <span className="nav-badge" style={{ backgroundColor: '#0284c7', color: '#ffffff' }}>Active</span>
               )}
             </button>
           );
