@@ -97,12 +97,12 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         />
 
         <MetricCard
-          title="WILDFIRE RISK LEVEL"
-          value="MODERATE RISK"
-          subtitle="2 Sectors High Risk (Low NDMI + High Temp)"
+          title="MODEL RISK ATTENTION"
+          value="CALIBRATED RISK EVALUATED"
+          subtitle="XGBoost v1.0 + Platt Sigmoid Probability Calibration"
           icon={<ShieldAlert className="metric-icon orange" />}
-          badgeText="DEMO UNCALIBRATED MODEL"
-          badgeType="warning"
+          badgeText="CALIBRATED MODEL"
+          badgeType="success"
         />
       </div>
 

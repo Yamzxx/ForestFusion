@@ -20,6 +20,8 @@ import {
 import type { FireState, FireDetectionRecord } from '../types/fire';
 import { TemporalAnalysisCard } from '../components/TemporalAnalysisCard';
 
+import type { GeocodingLocation } from '../types/weather';
+
 interface HistoricalFiresPageProps {
   fireState: FireState;
   days: number;
@@ -27,6 +29,7 @@ interface HistoricalFiresPageProps {
   onChangeDays: (days: number) => void;
   onChangeSource: (source: string) => void;
   onRetryFire: () => void;
+  selectedLocation?: GeocodingLocation;
 }
 
 export const HistoricalFiresPage: React.FC<HistoricalFiresPageProps> = ({
@@ -36,6 +39,7 @@ export const HistoricalFiresPage: React.FC<HistoricalFiresPageProps> = ({
   onChangeDays,
   onChangeSource,
   onRetryFire,
+  selectedLocation,
 }) => {
   const { data, loading, error } = fireState;
   const [showSetupGuide, setShowSetupGuide] = useState<boolean>(false);
@@ -133,7 +137,11 @@ export const HistoricalFiresPage: React.FC<HistoricalFiresPageProps> = ({
 
       {/* Render Active View Tab */}
       {activeTab === 'temporal' ? (
-        <TemporalAnalysisCard initialDays={days} />
+        <TemporalAnalysisCard 
+          initialDays={days} 
+          latitude={selectedLocation?.latitude}
+          longitude={selectedLocation?.longitude}
+        />
       ) : (
         <>
           {/* Loading State */}

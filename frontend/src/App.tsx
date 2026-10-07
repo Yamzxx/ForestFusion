@@ -213,12 +213,19 @@ export function App() {
             onChangeDays={setFireDays}
             onChangeSource={setFireSource}
             onRetryFire={handleRetryFires}
+            selectedLocation={selectedLocation}
           />
         );
       case 'analytics':
         return <AnalyticsPage />;
       case 'alerts':
-        return <DecisionSupportPage />;
+        return (
+          <DecisionSupportPage 
+            selectedLocation={selectedLocation}
+            weatherState={weatherState}
+            vegetationState={vegetationState}
+          />
+        );
       case 'settings':
         return <SettingsPage />;
       default:

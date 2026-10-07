@@ -27,13 +27,33 @@ import type {
 import type { SpatialPredictionRequest } from '../types/spatial';
 import { fetchDecisionSupportSummary, fetchAttentionList } from '../services/decisionSupportService';
 
-export const DecisionSupportPage: React.FC = () => {
+import type { WeatherState, GeocodingLocation } from '../types/weather';
+import type { VegetationState } from '../types/vegetation';
+
+interface DecisionSupportPageProps {
+  selectedLocation?: GeocodingLocation;
+  weatherState?: WeatherState;
+  vegetationState?: VegetationState;
+}
+
+export const DecisionSupportPage: React.FC<DecisionSupportPageProps> = ({
+  selectedLocation,
+  weatherState,
+  vegetationState
+}) => {
   const [attentionData, setAttentionData] = useState<DecisionSupportAttentionListResponse | null>(null);
   const [listLoading, setListLoading] = useState<boolean>(true);
-  const [selectedSectorName, setSelectedSectorName] = useState<string>('Bandipur Core Forest Sector A');
+  const initialLocationName = selectedLocation?.name || 'Bandipur Core Forest Sector A';
+  const [selectedSectorName, setSelectedSectorName] = useState<string>(initialLocationName);
   const [summary, setSummary] = useState<DecisionSupportSummary | null>(null);
   const [summaryLoading, setSummaryLoading] = useState<boolean>(false);
   const [filterLevel, setFilterLevel] = useState<string>('ALL');
+
+  useEffect(() => {
+    if (selectedLocation?.name && selectedLocation.name !== selectedSectorName) {
+      setSelectedSectorName(selectedLocation.name);
+    }
+  }, [selectedLocation?.name]);
 
   // Load attention list on mount
   const loadAttentionList = async () => {
@@ -57,18 +77,46 @@ export const DecisionSupportPage: React.FC = () => {
     let active = true;
     setSummaryLoading(true);
 
+    const lat = selectedLocation && selectedSectorName === selectedLocation.name
+      ? selectedLocation.latitude
+      : selectedSectorName.includes('Nagarhole') ? 11.986
+      : selectedSectorName.includes('Wayanad') ? 11.685
+      : selectedSectorName.includes('Mudumalai') ? 11.562
+      : 11.664;
+
+    const lng = selectedLocation && selectedSectorName === selectedLocation.name
+      ? selectedLocation.longitude
+      : selectedSectorName.includes('Nagarhole') ? 76.124
+      : selectedSectorName.includes('Wayanad') ? 76.132
+      : selectedSectorName.includes('Mudumalai') ? 76.534
+      : 76.627;
+
+    const temp = weatherState?.data && selectedLocation && selectedSectorName === selectedLocation.name
+      ? weatherState.data.current.temperature_2m
+      : selectedSectorName.includes('Wayanad') ? 26.5 : selectedSectorName.includes('Nagarhole') ? 31.0 : 34.2;
+
+    const humidity = weatherState?.data && selectedLocation && selectedSectorName === selectedLocation.name
+      ? weatherState.data.current.relative_humidity_2m
+      : selectedSectorName.includes('Wayanad') ? 58.0 : selectedSectorName.includes('Nagarhole') ? 32.0 : 22.0;
+
+    const wind = weatherState?.data && selectedLocation && selectedSectorName === selectedLocation.name
+      ? weatherState.data.current.wind_speed_10m
+      : selectedSectorName.includes('Wayanad') ? 9.0 : selectedSectorName.includes('Nagarhole') ? 14.0 : 21.0;
+
+    const ndviVal = vegetationState?.data?.latest_observation?.ndvi ?? (selectedSectorName.includes('Wayanad') ? 0.78 : selectedSectorName.includes('Nagarhole') ? 0.61 : 0.42);
+
     const targetReq: SpatialPredictionRequest = {
-      latitude: selectedSectorName.includes('Nagarhole') ? 11.986 : selectedSectorName.includes('Wayanad') ? 11.685 : selectedSectorName.includes('Mudumalai') ? 11.562 : 11.664,
-      longitude: selectedSectorName.includes('Nagarhole') ? 76.124 : selectedSectorName.includes('Wayanad') ? 76.132 : selectedSectorName.includes('Mudumalai') ? 76.534 : 76.627,
+      latitude: lat,
+      longitude: lng,
       location_name: selectedSectorName,
       environmental_inputs: {
-        temperature_2m: selectedSectorName.includes('Wayanad') ? 26.5 : selectedSectorName.includes('Nagarhole') ? 31.0 : 34.2,
-        relative_humidity_2m: selectedSectorName.includes('Wayanad') ? 58.0 : selectedSectorName.includes('Nagarhole') ? 32.0 : 22.0,
-        wind_speed_10m: selectedSectorName.includes('Wayanad') ? 9.0 : selectedSectorName.includes('Nagarhole') ? 14.0 : 21.0,
-        precipitation: selectedSectorName.includes('Wayanad') ? 1.2 : 0.0,
-        ndvi: selectedSectorName.includes('Wayanad') ? 0.78 : selectedSectorName.includes('Nagarhole') ? 0.61 : 0.42,
-        ndmi: selectedSectorName.includes('Wayanad') ? 0.31 : selectedSectorName.includes('Nagarhole') ? 0.08 : -0.15,
-        month: 4
+        temperature_2m: temp,
+        relative_humidity_2m: humidity,
+        wind_speed_10m: wind,
+        precipitation: weatherState?.data?.current.precipitation ?? 0.0,
+        ndvi: ndviVal,
+        ndmi: vegetationState?.data?.latest_observation?.ndmi ?? -0.15,
+        month: new Date().getMonth() + 1
       }
     };
 
