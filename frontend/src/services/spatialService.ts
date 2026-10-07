@@ -2,7 +2,9 @@ import type {
   SpatialPredictionRequest,
   SpatialPredictionResponse,
   SpatialBatchPredictionRequest,
-  SpatialBatchPredictionResponse
+  SpatialBatchPredictionResponse,
+  ScenarioSimulationRequest,
+  ScenarioSimulationResponse
 } from '../types/spatial';
 
 export const fetchSpatialPrediction = async (
@@ -77,3 +79,21 @@ export const fetchSpatialBatchPredictions = async (
     };
   }
 };
+
+export const fetchScenarioSimulation = async (
+  request: ScenarioSimulationRequest
+): Promise<ScenarioSimulationResponse> => {
+  const response = await fetch('/api/ml/scenario-simulation', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request)
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Scenario simulation failed (${response.status}): ${errText || response.statusText}`);
+  }
+
+  return response.json();
+};
+

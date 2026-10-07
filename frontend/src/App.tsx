@@ -3,6 +3,7 @@ import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
 import { OverviewPage } from './pages/OverviewPage';
 import { RiskMapPage } from './pages/RiskMapPage';
+import { WhatIfSimulatorPage } from './pages/WhatIfSimulatorPage';
 import { ForestHealthPage } from './pages/ForestHealthPage';
 import { HistoricalFiresPage } from './pages/HistoricalFiresPage';
 import { DecisionSupportPage } from './pages/DecisionSupportPage';
@@ -193,6 +194,14 @@ export function App() {
             onSelectWeatherLocation={setSelectedLocation}
             activeWeatherLocationName={selectedLocation.name}
             fireDetections={fireState.data?.detections || []}
+            weatherState={weatherState}
+            vegetationState={vegetationState}
+          />
+        );
+      case 'what-if':
+        return (
+          <WhatIfSimulatorPage
+            selectedLocation={selectedLocation}
             weatherState={weatherState}
             vegetationState={vegetationState}
           />

@@ -3,11 +3,14 @@ from app.schemas.spatial_prediction import (
     SpatialPredictionRequest,
     SpatialPredictionResponse,
     SpatialBatchPredictionRequest,
-    SpatialBatchPredictionResponse
+    SpatialBatchPredictionResponse,
+    ScenarioSimulationRequest,
+    ScenarioSimulationResponse
 )
 from app.services.spatial_prediction_service import (
     predict_spatial_wildfire_risk,
-    predict_spatial_batch
+    predict_spatial_batch,
+    simulate_what_if_scenario
 )
 
 router = APIRouter()
@@ -32,3 +35,14 @@ async def get_spatial_predictions_batch(req: SpatialBatchPredictionRequest):
     Batch evaluation of model-backed spatial risk predictions for monitored forest sectors.
     """
     return predict_spatial_batch(req)
+
+@router.post("/ml/scenario-simulation", response_model=ScenarioSimulationResponse)
+async def run_scenario_simulation(req: ScenarioSimulationRequest):
+    """
+    What-If Risk Simulator endpoint.
+    Evaluates modified feature vectors through the canonical prediction pipeline
+    (XGBoost -> Platt Calibration -> Risk Attention -> TreeSHAP) and compares them
+    against the observed baseline.
+    """
+    return simulate_what_if_scenario(req)
+

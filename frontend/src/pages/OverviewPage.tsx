@@ -862,8 +862,6 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
           </div>
         </div>
       </div>
-
-      </div>
     </div>
   );
 };
