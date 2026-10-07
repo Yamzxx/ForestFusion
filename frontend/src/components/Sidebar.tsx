@@ -64,8 +64,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeTab, onSelectTab }) => {
         <div className="system-status-mini">
           <ShieldAlert className="status-mini-icon" />
           <div className="status-mini-info">
-            <span className="status-mini-title">Stage 1 Foundation</span>
-            <span className="status-mini-sub">Dashboard Shell Active</span>
+            <span className="status-mini-title">ForestFusion v1.0</span>
+            <span className="status-mini-sub">Decision Support Platform</span>
           </div>
         </div>
       </div>

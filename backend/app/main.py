@@ -13,16 +13,24 @@ from app.api.spatial import router as spatial_router
 from app.api.temporal_analysis import router as temporal_analysis_router
 from app.api.decision_support import router as decision_support_router
 
+import os
+
+cors_origins_env = os.getenv("CORS_ORIGINS")
+if cors_origins_env:
+    cors_origins = [origin.strip() for origin in cors_origins_env.split(",")]
+else:
+    cors_origins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174", "*"]
+
 app = FastAPI(
     title="ForestFusion API",
     description="Wildfire Risk Prediction and Forest Health Monitoring Platform API",
     version="0.1.0"
 )
 
-# CORS configuration for local development
+# CORS configuration for production & local development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

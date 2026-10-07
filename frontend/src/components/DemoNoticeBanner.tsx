@@ -7,12 +7,12 @@ export const DemoNoticeBanner: React.FC = () => {
       <div className="demo-notice-content">
         <Info className="demo-notice-icon" />
         <div>
-          <strong>Academic Prototype Notice:</strong> All values displayed across dashboard cards, map markers, and charts represent <em>illustrative mock data</em>. 
-          Sentinel-2 band acquisition, weather API streaming, and XGBoost machine-learning inference will be integrated in subsequent project stages. 
-          No operational wildfire risk predictions are active until model calibration is completed.
+          <strong>Scientific Research Platform Notice:</strong> ForestFusion is an integrated decision-support prototype. 
+          Open-Meteo weather streaming, Copernicus Sentinel-2 vegetation telemetry, NASA FIRMS fire hotspots, XGBoost ML inference, Platt probability calibration, and TreeSHAP explainability are active. 
+          Model outputs represent statistical hazard probabilities and do not constitute operational emergency warning triggers.
         </div>
       </div>
-      <span className="demo-tag">STAGE 1 DASHBOARD SHELL</span>
+      <span className="demo-tag" style={{ backgroundColor: '#0284c7', color: '#ffffff' }}>PROTOTYPE PLATFORM ACTIVE</span>
     </div>
   );
 };
