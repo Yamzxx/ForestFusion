@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { Header } from './components/Header';
-import { DemoNoticeBanner } from './components/DemoNoticeBanner';
 import { OverviewPage } from './pages/OverviewPage';
 import { RiskMapPage } from './pages/RiskMapPage';
 import { ForestHealthPage } from './pages/ForestHealthPage';
@@ -277,9 +276,6 @@ export function App() {
           onSelectLocation={setSelectedLocation}
           selectedLocationName={selectedLocation.name}
         />
-
-        {/* Demo Disclaimer Banner */}
-        <DemoNoticeBanner />
 
         {/* Dynamic Page View */}
         <div className="content-container">

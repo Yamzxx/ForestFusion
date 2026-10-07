@@ -863,12 +863,6 @@ export const OverviewPage: React.FC<OverviewPageProps> = ({
         </div>
       </div>
 
-      {/* 9. Scientific Limitation / Academic Notice */}
-      <div className="overview-scientific-disclaimer">
-        <Info size={14} className="disclaimer-icon" />
-        <p className="disclaimer-text">
-          <strong>Research prototype:</strong> Model outputs represent statistical hazard estimates and are not operational emergency warnings, fire dispatch commands, or evacuation advisories.
-        </p>
       </div>
     </div>
   );
