@@ -1,6 +1,6 @@
 # 🌲 ForestFusion
 
-**Wildfire Risk Prediction and Forest Health Monitoring using Sentinel-2 Satellite Imagery, Weather Intelligence, and Machine Learning**
+**Wildfire Risk Prediction and Forest Health Monitoring **
 
 ## 📌 Project Overview
 
@@ -282,7 +282,7 @@ Day 10 builds a **Gradient Boosted Decision Trees (GBDT)** non-linear classifica
 
 ---
 
-## 🚀 Getting Started Guide
+## 🚀 Setting up Guide
 
 ### 1. Backend Setup & API Execution
 
@@ -311,7 +311,3 @@ Open your browser to: `http://localhost:5173`
 
 ---
 
-## ⚠️ Academic Prototype & Demo Disclaimer
-
-> [!NOTE]
-> All environmental metrics, zone risk ratings, map coordinates, historical fire charts, and recent observations displayed represent *illustrative mock data* designed to validate the dashboard architecture, geospatial map overlays, and API connectivity shell. Model inference and live satellite integration will be bound in subsequent project stages.
