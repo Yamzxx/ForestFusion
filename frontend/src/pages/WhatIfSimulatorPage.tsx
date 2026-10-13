@@ -258,23 +258,6 @@ export const WhatIfSimulatorPage: React.FC<WhatIfSimulatorPageProps> = ({
             <span>Observation Reference: {new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} (Month {currentMonth})</span>
           </div>
         </div>
-
-        {/* Scientific Non-Causal Notice */}
-        <div style={{
-          marginTop: '10px',
-          padding: '8px 12px',
-          backgroundColor: '#f0fdf4',
-          border: '1px solid #bbf7d0',
-          borderRadius: '6px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <Info size={16} style={{ color: '#16a34a', flexShrink: 0 }} />
-          <span style={{ fontSize: '0.74rem', color: '#166534', lineHeight: 1.4 }}>
-            <strong>Scientific Notice:</strong> Scenario results represent model response to modified inputs and should not be interpreted as physical causation or operational wildfire forecasts.
-          </span>
-        </div>
       </div>
 
       {/* Two-Column Editor Layout: CURRENT CONDITIONS vs SCENARIO CONDITIONS */}
