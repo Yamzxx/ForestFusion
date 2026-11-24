@@ -3,16 +3,12 @@ import {
   BarChart3, 
   ShieldAlert, 
   CheckCircle2, 
-  AlertTriangle, 
   Cpu, 
   Layers, 
   RefreshCw,
-  Info,
-  Lock,
   Globe,
   Flame,
   Calendar,
-  Crosshair,
   ArrowRight
 } from 'lucide-react';
 import type { DatasetAnalysisState } from '../types/datasetAnalysis';
@@ -152,10 +148,10 @@ export const DatasetAnalysisCard: React.FC<DatasetAnalysisCardProps> = ({ lat = 
           {/* Data Quality & Spatial/Temporal Grid */}
           <div className="section-grid-two-col" style={{ marginTop: '20px' }}>
             {/* Left: Quality & Missingness Audit */}
-            <div className="spec-card" style={{ backgroundColor: '#ffffff' }}>
-              <div className="spec-card-header">
-                <CheckCircle2 className="spec-icon green" />
-                <h4>Quality & Missingness Audit</h4>
+            <div className="spec-card" style={{ backgroundColor: '#FFFFFF', border: '1px solid #D5DDD8', boxShadow: 'var(--shadow-sm)' }}>
+              <div className="spec-card-header" style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
+                <CheckCircle2 className="spec-icon" style={{ color: '#17452F' }} />
+                <h4 style={{ color: '#17452F' }}>Quality & Missingness Audit</h4>
               </div>
               <div className="popup-grid" style={{ marginTop: '12px' }}>
                 <div className="popup-item"><span>Records Inspected:</span> <strong>{report.quality_metrics.total_records_inspected}</strong></div>
@@ -165,7 +161,7 @@ export const DatasetAnalysisCard: React.FC<DatasetAnalysisCardProps> = ({ lat = 
                 <div className="popup-item"><span>Invalid Coords / Values:</span> <strong>{report.quality_metrics.invalid_coordinate_count}</strong></div>
               </div>
               {report.quality_metrics.exclusion_reasons.length > 0 && (
-                <div style={{ marginTop: '12px', fontSize: '0.78rem', color: '#991b1b', backgroundColor: '#fef2f2', padding: '8px', borderRadius: '4px' }}>
+                <div style={{ marginTop: '12px', fontSize: '0.78rem', color: '#B91C1C', backgroundColor: '#FEF2F2', padding: '8px', borderRadius: '4px', border: '1px solid #FECACA' }}>
                   <strong>Exclusions Log:</strong>
                   <ul style={{ paddingLeft: '16px', margin: '4px 0 0 0' }}>
                     {report.quality_metrics.exclusion_reasons.map((reason, i) => <li key={i}>{reason}</li>)}
@@ -175,10 +171,10 @@ export const DatasetAnalysisCard: React.FC<DatasetAnalysisCardProps> = ({ lat = 
             </div>
 
             {/* Right: Temporal & Spatial Coverage */}
-            <div className="spec-card" style={{ backgroundColor: '#ffffff' }}>
-              <div className="spec-card-header">
-                <Globe className="spec-icon" style={{ color: '#0284c7' }} />
-                <h4>Temporal & Spatial Coverage</h4>
+            <div className="spec-card" style={{ backgroundColor: '#FFFFFF', border: '1px solid #D5DDD8', boxShadow: 'var(--shadow-sm)' }}>
+              <div className="spec-card-header" style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
+                <Globe className="spec-icon" style={{ color: '#17452F' }} />
+                <h4 style={{ color: '#17452F' }}>Temporal & Spatial Coverage</h4>
               </div>
               <div className="popup-grid" style={{ marginTop: '12px' }}>
                 <div className="popup-item"><span>Temporal Span:</span> <strong>{report.temporal_spatial_distribution.temporal_span_days} Days</strong></div>
@@ -186,21 +182,21 @@ export const DatasetAnalysisCard: React.FC<DatasetAnalysisCardProps> = ({ lat = 
                 <div className="popup-item"><span>Spatial Overlap:</span> <strong>{report.temporal_spatial_distribution.spatial_overlap_status}</strong></div>
                 <div className="popup-item"><span>Grid Density:</span> <strong>{report.temporal_spatial_distribution.grid_cell_density}</strong></div>
               </div>
-              <p style={{ fontSize: '0.78rem', color: '#475569', marginTop: '12px' }}>
+              <p style={{ fontSize: '0.78rem', color: '#55635C', marginTop: '12px' }}>
                 <strong>Spatial Scope Notice:</strong> {report.temporal_spatial_distribution.spatial_representation}
               </p>
             </div>
           </div>
 
           {/* Fire Data & Target Defensibility Assessment */}
-          <div className="ndvi-guardrail-banner" style={{ marginTop: '20px', backgroundColor: '#fef2f2', borderColor: '#fecaca' }}>
-            <Flame className="guardrail-icon" style={{ color: '#dc2626' }} />
+          <div className="ndvi-guardrail-banner" style={{ marginTop: '20px', backgroundColor: '#FEF2F2', borderColor: '#FECACA', borderLeft: '4px solid #B91C1C' }}>
+            <Flame className="guardrail-icon" style={{ color: '#B91C1C' }} />
             <div>
-              <strong style={{ color: '#991b1b' }}>Fire Data & Target Label Defensibility Assessment:</strong>
-              <p style={{ color: '#7f1d1d', marginTop: '4px', fontSize: '0.85rem' }}>
+              <strong style={{ color: '#B91C1C' }}>Fire Data & Target Label Defensibility Assessment:</strong>
+              <p style={{ color: '#7F1D1D', marginTop: '4px', fontSize: '0.85rem' }}>
                 {report.target_defensibility_assessment}
               </p>
-              <ul style={{ paddingLeft: '16px', margin: '8px 0 0 0', color: '#991b1b', fontSize: '0.78rem' }}>
+              <ul style={{ paddingLeft: '16px', margin: '8px 0 0 0', color: '#B91C1C', fontSize: '0.78rem' }}>
                 {report.fire_data_analysis.labeling_limitations.map((lim, i) => <li key={i}>• {lim}</li>)}
               </ul>
             </div>
@@ -208,31 +204,31 @@ export const DatasetAnalysisCard: React.FC<DatasetAnalysisCardProps> = ({ lat = 
 
           {/* Feature Leakage Audit & Recommended Next Steps */}
           <div className="specifications-grid" style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div className="spec-card" style={{ backgroundColor: '#ffffff' }}>
-              <div className="spec-card-header">
-                <CheckCircle2 className="spec-icon green" />
-                <h4>Feature Data Leakage Audit</h4>
+            <div className="spec-card" style={{ backgroundColor: '#FFFFFF', border: '1px solid #D5DDD8', boxShadow: 'var(--shadow-sm)' }}>
+              <div className="spec-card-header" style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
+                <CheckCircle2 className="spec-icon" style={{ color: '#17452F' }} />
+                <h4 style={{ color: '#17452F' }}>Feature Data Leakage Audit</h4>
               </div>
-              <p style={{ fontSize: '0.8rem', color: '#334155' }}>
-                <strong>Status:</strong> {report.feature_leakage_audit.has_leakage_risk ? 'LEAKAGE RISK DETECTED' : 'CLEAN (NO LEAKAGE)'}
+              <p style={{ fontSize: '0.8rem', color: '#55635C', marginTop: '8px' }}>
+                <strong>Status:</strong> <span style={{ color: report.feature_leakage_audit.has_leakage_risk ? '#B91C1C' : '#17452F', fontWeight: 700 }}>{report.feature_leakage_audit.has_leakage_risk ? 'LEAKAGE RISK DETECTED' : 'CLEAN (NO LEAKAGE)'}</span>
               </p>
-              <ul className="spec-list" style={{ marginTop: '8px' }}>
+              <ul className="spec-list" style={{ marginTop: '8px', color: '#252B28' }}>
                 {report.feature_leakage_audit.leakage_notes.map((note, i) => <li key={i}>✓ {note}</li>)}
               </ul>
             </div>
 
-            <div className="spec-card" style={{ backgroundColor: '#ffffff' }}>
-              <div className="spec-card-header">
-                <ArrowRight className="spec-icon" style={{ color: '#0284c7' }} />
-                <h4>Recommended Next Steps</h4>
+            <div className="spec-card" style={{ backgroundColor: '#FFFFFF', border: '1px solid #D5DDD8', boxShadow: 'var(--shadow-sm)' }}>
+              <div className="spec-card-header" style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
+                <ArrowRight className="spec-icon" style={{ color: '#17452F' }} />
+                <h4 style={{ color: '#17452F' }}>Recommended Next Steps</h4>
               </div>
-              <p style={{ fontSize: '0.8rem', color: '#334155', fontWeight: 600 }}>
+              <p style={{ fontSize: '0.8rem', color: '#252B28', fontWeight: 600, marginTop: '8px' }}>
                 Biggest Remaining Blocker:
               </p>
-              <p style={{ fontSize: '0.78rem', color: '#b45309' }}>
+              <p style={{ fontSize: '0.78rem', color: '#C25E00' }}>
                 {report.biggest_remaining_blocker}
               </p>
-              <div style={{ marginTop: '8px', fontSize: '0.78rem', color: '#0369a1', backgroundColor: '#f0f9ff', padding: '8px', borderRadius: '4px' }}>
+              <div style={{ marginTop: '8px', fontSize: '0.78rem', color: '#17452F', backgroundColor: '#EBF3EF', padding: '8px', borderRadius: '4px', border: '1px solid #C2DBCD' }}>
                 <strong>Action:</strong> {report.recommended_next_step}
               </div>
             </div>

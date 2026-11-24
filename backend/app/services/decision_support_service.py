@@ -144,13 +144,14 @@ def evaluate_decision_support(req: SpatialPredictionRequest) -> DecisionSupportS
 
     # 3. Format SHAP Contributors
     shap_details: List[ShapContributorDetail] = []
-    if sp_resp.shap_explanation and sp_resp.shap_explanation.top_contributors:
-        for contrib in sp_resp.shap_explanation.top_contributors:
+    if sp_resp.shap_explanation and (getattr(sp_resp.shap_explanation, 'feature_contributions', None) or getattr(sp_resp.shap_explanation, 'top_contributors', None)):
+        for contrib in (getattr(sp_resp.shap_explanation, 'feature_contributions', None) or getattr(sp_resp.shap_explanation, 'top_contributors', [])):
+            feat_name = getattr(contrib, 'feature_name', None) or getattr(contrib, 'feature', 'Feature')
             direction = "INCREASED_RISK" if contrib.shap_value >= 0 else "DECREASED_RISK"
             action_word = "increased" if contrib.shap_value >= 0 else "decreased"
-            stmt = f"Feature '{contrib.feature}' (value: {contrib.feature_value}) {action_word} model margin prediction by {abs(contrib.shap_value):.3f} SHAP units."
+            stmt = getattr(contrib, 'human_explanation', None) or f"Feature '{feat_name}' (value: {contrib.feature_value}) {action_word} model margin prediction by {abs(contrib.shap_value):.3f} SHAP units."
             shap_details.append(ShapContributorDetail(
-                feature=contrib.feature,
+                feature=feat_name,
                 shap_value=contrib.shap_value,
                 feature_value=contrib.feature_value,
                 direction=direction,

@@ -14,8 +14,7 @@ import {
   Database,
   Calendar,
   Filter,
-  TrendingUp,
-  BarChart3
+  TrendingUp
 } from 'lucide-react';
 import type { FireState, FireDetectionRecord } from '../types/fire';
 import { TemporalAnalysisCard } from '../components/TemporalAnalysisCard';

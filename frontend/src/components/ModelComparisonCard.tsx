@@ -3,11 +3,8 @@ import {
   BarChart3, 
   Award, 
   TrendingUp, 
-  CheckCircle2, 
   Info, 
   RefreshCw, 
-  Sliders, 
-  Layers,
   Sparkles,
   GitCompare,
   Zap
@@ -124,8 +121,8 @@ export const ModelComparisonCard: React.FC<ModelComparisonCardProps> = ({
               <h4>Model Evaluation Comparison Matrix (Held-out 20% Validation Split)</h4>
             </div>
 
-            <div className="fire-records-table-wrapper">
-              <table className="fire-records-table">
+            <div className="fire-records-table-wrapper" style={{ overflowX: 'auto' }}>
+              <table className="scientific-data-table">
                 <thead>
                   <tr>
                     <th>Model Name</th>
@@ -141,11 +138,11 @@ export const ModelComparisonCard: React.FC<ModelComparisonCardProps> = ({
                 </thead>
                 <tbody>
                   {report.comparison_table.map((row, idx) => (
-                    <tr key={idx} style={{ backgroundColor: row.is_best_f1 ? '#f0fdf4' : 'transparent' }}>
-                      <td style={{ fontWeight: 700 }}>
+                    <tr key={idx} style={{ backgroundColor: row.is_best_f1 ? '#EBF3EF' : undefined }}>
+                      <td style={{ fontWeight: 700, color: '#17452F' }}>
                         {row.model_name}
                         {row.is_best_f1 && (
-                          <span style={{ marginLeft: '6px', fontSize: '0.7rem', color: '#166534', backgroundColor: '#dcfce7', padding: '2px 6px', borderRadius: '4px' }}>
+                          <span style={{ marginLeft: '6px', fontSize: '0.7rem', color: '#17452F', backgroundColor: '#EBF3EF', padding: '2px 6px', borderRadius: '4px', border: '1px solid #C2DBCD' }}>
                             ★ BEST F1
                           </span>
                         )}
@@ -154,13 +151,21 @@ export const ModelComparisonCard: React.FC<ModelComparisonCardProps> = ({
                       <td className="table-numeric"><strong>{(row.accuracy * 100).toFixed(2)}%</strong></td>
                       <td className="table-numeric">{(row.precision * 100).toFixed(2)}%</td>
                       <td className="table-numeric">{(row.recall * 100).toFixed(2)}%</td>
-                      <td className="table-numeric" style={{ color: row.is_best_f1 ? '#15803d' : 'inherit', fontWeight: 700 }}>
+                      <td className="table-numeric" style={{ color: row.is_best_f1 ? '#17452F' : 'inherit', fontWeight: 700 }}>
                         {(row.f1_score * 100).toFixed(2)}%
                       </td>
                       <td className="table-numeric"><strong>{row.roc_auc ? row.roc_auc.toFixed(4) : 'N/A'}</strong></td>
                       <td className="table-numeric">{row.pr_auc ? row.pr_auc.toFixed(4) : 'N/A'}</td>
                       <td>
-                        <span className={`confidence-tag ${row.is_best_f1 ? 'conf-high' : 'conf-nominal'}`}>
+                        <span style={{
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          padding: '2px 6px',
+                          borderRadius: '3px',
+                          backgroundColor: row.is_best_f1 ? '#EBF3EF' : '#F1F5F9',
+                          color: row.is_best_f1 ? '#17452F' : '#475569',
+                          border: `1px solid ${row.is_best_f1 ? '#C2DBCD' : '#CBD5E1'}`
+                        }}>
                           {row.is_best_f1 ? 'SUPERIOR F1 & ROC' : 'BASELINE BENCHMARK'}
                         </span>
                       </td>
@@ -174,10 +179,10 @@ export const ModelComparisonCard: React.FC<ModelComparisonCardProps> = ({
           {/* 2-Column Section: Left XGBoost Feature Gain Importances / Right Real-time Risk Simulator */}
           <div className="section-grid-two-col" style={{ marginTop: '20px' }}>
             {/* Left: Feature Gain Importances */}
-            <div className="spec-card" style={{ backgroundColor: '#ffffff' }}>
-              <div className="spec-card-header">
-                <TrendingUp className="spec-icon" style={{ color: '#0284c7' }} />
-                <h4>XGBoost Feature Gain Importances (Average Split Gain)</h4>
+            <div className="spec-card" style={{ backgroundColor: '#FFFFFF', border: '1px solid #D5DDD8', boxShadow: 'var(--shadow-sm)' }}>
+              <div className="spec-card-header" style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
+                <TrendingUp className="spec-icon" style={{ color: '#17452F' }} />
+                <h4 style={{ color: '#17452F' }}>XGBoost Feature Gain Importances (Average Split Gain)</h4>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
@@ -185,14 +190,14 @@ export const ModelComparisonCard: React.FC<ModelComparisonCardProps> = ({
                   <div key={item.feature_name}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem' }}>
                       <span style={{ fontWeight: 600 }}>#{item.rank} <code>{item.feature_name}</code></span>
-                      <strong>{(item.gain_importance * 100).toFixed(1)}% Gain</strong>
+                      <strong style={{ color: '#17452F' }}>{(item.gain_importance * 100).toFixed(1)}% Gain</strong>
                     </div>
-                    <div style={{ width: '100%', height: '6px', backgroundColor: '#e2e8f0', borderRadius: '3px', marginTop: '4px', overflow: 'hidden' }}>
+                    <div style={{ width: '100%', height: '6px', backgroundColor: '#E2E8F0', borderRadius: '3px', marginTop: '4px', overflow: 'hidden' }}>
                       <div 
                         style={{ 
                           width: `${item.gain_importance * 100 * 2.5}%`, 
                           height: '100%', 
-                          backgroundColor: item.rank === 1 ? '#0284c7' : item.rank === 2 ? '#0284c7' : '#0284c7'
+                          backgroundColor: '#17452F'
                         }} 
                       />
                     </div>
@@ -200,16 +205,16 @@ export const ModelComparisonCard: React.FC<ModelComparisonCardProps> = ({
                 ))}
               </div>
 
-              <div style={{ marginTop: '12px', fontSize: '0.72rem', color: '#64748b', backgroundColor: '#f8fafc', padding: '6px 8px', borderRadius: '4px' }}>
+              <div style={{ marginTop: '12px', fontSize: '0.72rem', color: '#55635C', backgroundColor: '#F8FAF9', padding: '6px 8px', borderRadius: '4px', border: '1px solid #E2E8F0' }}>
                 * Feature Gain indicates average improvement in accuracy brought by splits on this feature. It indicates statistical reliance, NOT direct physical causality.
               </div>
             </div>
 
             {/* Right: Live Interactive Risk Comparison Simulator */}
-            <div className="spec-card" style={{ backgroundColor: '#ffffff' }}>
-              <div className="spec-card-header">
-                <Zap className="spec-icon" style={{ color: '#ea580c' }} />
-                <h4>Live Model Output Simulator (Baseline vs XGBoost)</h4>
+            <div className="spec-card" style={{ backgroundColor: '#FFFFFF', border: '1px solid #D5DDD8', boxShadow: 'var(--shadow-sm)' }}>
+              <div className="spec-card-header" style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
+                <Zap className="spec-icon" style={{ color: '#C25E00' }} />
+                <h4 style={{ color: '#17452F' }}>Live Model Output Simulator (Baseline vs XGBoost)</h4>
               </div>
 
               {/* Input Controls */}

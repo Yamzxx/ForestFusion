@@ -8,9 +8,6 @@ import {
   Sliders, 
   Info, 
   RefreshCw, 
-  CheckCircle2, 
-  ShieldAlert, 
-  TrendingUp, 
   Layers 
 } from 'lucide-react';
 import type { BaselineFeaturesInput } from '../types/mlModel';
@@ -121,34 +118,34 @@ export const ShapExplainabilityCard: React.FC<ShapExplainabilityCardProps> = ({
         <div className="shap-content" style={{ marginTop: '16px' }}>
           
           {/* Section 1: MODEL PREDICTION BANNER */}
-          <div className="spec-card" style={{ backgroundColor: '#ffffff', borderLeft: `5px solid ${getRiskColor(localExplanation.model_probability)}` }}>
+          <div className="spec-card" style={{ backgroundColor: '#FFFFFF', border: '1px solid #D5DDD8', borderLeft: `4px solid ${getRiskColor(localExplanation.model_probability)}`, boxShadow: 'var(--shadow-sm)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
               <div>
-                <span style={{ fontSize: '0.72rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>
+                <span style={{ fontSize: '0.72rem', color: '#55635C', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>
                   MODEL PREDICTION &amp; PROBABILITY
                 </span>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginTop: '4px' }}>
-                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: getRiskColor(localExplanation.calibrated_probability ?? localExplanation.model_probability) }}>
+                  <span style={{ fontSize: '1.8rem', fontWeight: 800, color: getRiskColor(localExplanation.calibrated_probability ?? localExplanation.model_probability), fontFamily: 'monospace' }}>
                     {((localExplanation.calibrated_probability ?? localExplanation.model_probability) * 100).toFixed(1)}%
                   </span>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#334155' }}>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#252B28' }}>
                     {localExplanation.predicted_label}
                   </span>
                   {localExplanation.calibrated_probability !== undefined && (
-                    <span style={{ fontSize: '0.72rem', backgroundColor: '#dcfce7', color: '#166534', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+                    <span style={{ fontSize: '0.70rem', backgroundColor: '#EBF3EF', color: '#17452F', padding: '2px 8px', borderRadius: '4px', fontWeight: 700, border: '1px solid #C2DBCD' }}>
                       PLATT-CALIBRATED
                     </span>
                   )}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '2px' }}>
+                <div style={{ fontSize: '0.75rem', color: '#55635C', marginTop: '2px' }}>
                   Raw Model Score (Uncalibrated): <strong>{(localExplanation.model_probability * 100).toFixed(1)}%</strong> &bull; Base Expectation (&phi;<sub>0</sub>): <strong>{(localExplanation.base_probability * 100).toFixed(1)}%</strong>
                 </div>
               </div>
 
-              <div style={{ textAlign: 'right', fontSize: '0.75rem', color: '#475569' }}>
-                <div>Model Architecture: <strong>{localExplanation.model_name} (v{localExplanation.model_version})</strong></div>
-                <div>Raw Decision Margin: <strong>{localExplanation.output_margin.toFixed(3)}</strong></div>
-                <div>Additivity Axiom Status: <strong style={{ color: '#16a34a' }}>&check; Exactly Additive</strong></div>
+              <div style={{ textAlign: 'right', fontSize: '0.75rem', color: '#55635C' }}>
+                <div>Model Architecture: <strong style={{ color: '#252B28' }}>{localExplanation.model_name} (v{localExplanation.model_version})</strong></div>
+                <div>Raw Decision Margin: <strong style={{ color: '#252B28' }}>{localExplanation.output_margin.toFixed(3)}</strong></div>
+                <div>Additivity Axiom Status: <strong style={{ color: '#17452F' }}>&check; Exactly Additive</strong></div>
               </div>
             </div>
           </div>
@@ -157,10 +154,10 @@ export const ShapExplainabilityCard: React.FC<ShapExplainabilityCardProps> = ({
           <div className="section-grid-two-col" style={{ marginTop: '20px' }}>
             
             {/* Left Column: Local SHAP Waterfall-style Feature Contributions */}
-            <div className="spec-card" style={{ backgroundColor: '#ffffff' }}>
-              <div className="spec-card-header">
-                <HelpCircle className="spec-icon" style={{ color: '#8b5cf6' }} />
-                <h4>Why the Model Predicted This (Local SHAP Attributions)</h4>
+            <div className="spec-card" style={{ backgroundColor: '#FFFFFF', border: '1px solid #D5DDD8', boxShadow: 'var(--shadow-sm)' }}>
+              <div className="spec-card-header" style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
+                <HelpCircle className="spec-icon" style={{ color: '#17452F' }} />
+                <h4 style={{ color: '#17452F' }}>Why the Model Predicted This (Local SHAP Attributions)</h4>
               </div>
 
               <p style={{ fontSize: '0.76rem', color: '#475569', marginTop: '6px' }}>
@@ -221,14 +218,14 @@ export const ShapExplainabilityCard: React.FC<ShapExplainabilityCardProps> = ({
               
               {/* Global SHAP Ranking Table */}
               {globalReport && (
-                <div className="spec-card" style={{ backgroundColor: '#ffffff' }}>
-                  <div className="spec-card-header">
-                    <BarChart2 className="spec-icon" style={{ color: '#0284c7' }} />
-                    <h4>Model Feature Importance (Global TreeSHAP)</h4>
+                <div className="spec-card" style={{ backgroundColor: '#FFFFFF', border: '1px solid #D5DDD8', boxShadow: 'var(--shadow-sm)' }}>
+                  <div className="spec-card-header" style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
+                    <BarChart2 className="spec-icon" style={{ color: '#17452F' }} />
+                    <h4 style={{ color: '#17452F' }}>Model Feature Importance (Global TreeSHAP)</h4>
                   </div>
 
-                  <p style={{ fontSize: '0.74rem', color: '#475569', marginTop: '4px' }}>
-                    Average magnitude of impact across 200 evaluation observations (Mean |SHAP|):
+                  <p style={{ fontSize: '0.74rem', color: '#55635C', marginTop: '4px' }}>
+                    Average magnitude of impact across evaluation observations (Mean |SHAP|):
                   </p>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px' }}>
@@ -236,14 +233,14 @@ export const ShapExplainabilityCard: React.FC<ShapExplainabilityCardProps> = ({
                       <div key={item.feature_name}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem' }}>
                           <span><strong>#{item.rank}</strong> <code>{item.feature_name}</code></span>
-                          <span style={{ color: '#0f172a', fontWeight: 600 }}>{item.mean_abs_shap_value.toFixed(3)} ({item.relative_importance}%)</span>
+                          <span style={{ color: '#17452F', fontWeight: 700 }}>{item.mean_abs_shap_value.toFixed(3)} ({item.relative_importance}%)</span>
                         </div>
-                        <div style={{ width: '100%', height: '5px', backgroundColor: '#e2e8f0', borderRadius: '3px', marginTop: '3px', overflow: 'hidden' }}>
+                        <div style={{ width: '100%', height: '5px', backgroundColor: '#E2E8F0', borderRadius: '3px', marginTop: '3px', overflow: 'hidden' }}>
                           <div 
                             style={{ 
                               width: `${item.relative_importance * 2.5}%`, 
                               height: '100%', 
-                              backgroundColor: '#8b5cf6' 
+                              backgroundColor: '#17452F' 
                             }} 
                           />
                         </div>
@@ -254,10 +251,10 @@ export const ShapExplainabilityCard: React.FC<ShapExplainabilityCardProps> = ({
               )}
 
               {/* Interactive Parameter Sliders */}
-              <div className="spec-card" style={{ backgroundColor: '#ffffff' }}>
-                <div className="spec-card-header">
-                  <Sliders className="spec-icon" style={{ color: '#ea580c' }} />
-                  <h4>Simulate Input Telemetry (Watch SHAP Update)</h4>
+              <div className="spec-card" style={{ backgroundColor: '#FFFFFF', border: '1px solid #D5DDD8', boxShadow: 'var(--shadow-sm)' }}>
+                <div className="spec-card-header" style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
+                  <Sliders className="spec-icon" style={{ color: '#C25E00' }} />
+                  <h4 style={{ color: '#17452F' }}>Simulate Input Telemetry (Watch SHAP Update)</h4>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '10px', fontSize: '0.76rem' }}>

@@ -1,34 +1,94 @@
 @import 'leaflet/dist/leaflet.css';
 
 :root {
-  /* Restrained Scientific Color System */
-  --bg-sidebar: #0f291e;
-  --bg-sidebar-hover: #163c2c;
-  --bg-sidebar-active: #1d4d39;
-  --text-sidebar: #c2d6cb;
-  --text-sidebar-active: #ffffff;
+  /* ==========================================================================
+     ForestFusion Environmental & Wildfire Intelligence Portal Design System
+     Government & Academic Research Platform Specification (FSI Inspired)
+     ========================================================================== */
+
+  /* Main Surfaces & Canvas (White & Natural Light Grey) */
+  --bg-app: #F4F6F5;
+  --bg-app-subtle: #EBF0ED;
+  --bg-sidebar: #17452F; /* Deep forest green government sidebar */
+  --bg-sidebar-hover: #1E543B;
+  --bg-sidebar-active: #26734B;
   
-  --bg-app: #f4f6f4;
-  --bg-card: #ffffff;
-  --border-color: #dbe4dd;
-  --border-color-dark: #cbd8cf;
-  
-  --primary-green: #1d5234;
-  --primary-green-light: #eef5f0;
-  --primary-green-border: #a8d3b8;
-  
-  --color-success: #27ae60;
-  --color-warning: #f39c12;
-  --color-danger: #d9534f;
-  --color-info: #2980b9;
-  
-  --text-primary: #1c2826;
-  --text-secondary: #4a5d54;
-  --text-muted: #72857b;
-  
-  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --shadow-card: 0 2px 5px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --bg-panel: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-elevated: #F8FAF9;
+  --bg-card-hover: #F0F4F2;
+  --bg-surface-graphite: #FFFFFF;
+  --bg-surface-dark: #17452F;
+
+  /* Official Forest Green Palette */
+  --forest-green-header: #17452F;
+  --forest-green-dark: #103423;
+  --forest-green-medium: #1E543B;
+  --forest-green-light: #26734B;
+  --forest-green-pale: #EBF3EF;
+  --forest-green-accent: #2E8557;
+
+  /* Thin Neutral Borders */
+  --border-subtle: #E2E8F0;
+  --border-color: #D5DDD8;
+  --border-color-subtle: #E8ECE9;
+  --border-color-dark: #BCC7C1;
+  --border-accent: rgba(23, 69, 47, 0.25);
+  --border-amber: rgba(217, 119, 6, 0.35);
+  --border-red: rgba(185, 28, 28, 0.35);
+
+  /* Primary Accent: Deep Forest Green */
+  --primary-green: #17452F;
+  --primary-green-dark: #103423;
+  --primary-green-light: #EBF3EF;
+  --primary-green-border: #BCC7C1;
+
+  /* Secondary Accents */
+  --accent-cyan: #0E7490;
+  --accent-cyan-bg: #ECFEFF;
+  --accent-teal: #0F766E;
+  --accent-teal-bg: #F0FDFA;
+
+  /* Scientific Operational States (Government Standard) */
+  --color-success: #15803D;
+  --color-success-bg: #F0FDF4;
+  --color-warning: #C25E00;
+  --color-warning-bg: #FFFBEB;
+  --color-danger: #B91C1C;
+  --color-danger-bg: #FEF2F2;
+  --color-amber: #B45309;
+  --color-amber-bg: #FFFBEB;
+  --color-info: #0369A1;
+  --color-info-bg: #F0F9FF;
+  --color-satellite: #6D28D9;
+  --color-satellite-bg: #F5F3FF;
+
+  /* Government Portal Typography Colors */
+  --text-primary: #252B28;
+  --text-secondary: #55635C;
+  --text-muted: #6B7280;
+  --text-subtle: #87928C;
+  --text-sidebar: #D5E5DD;
+  --text-sidebar-active: #FFFFFF;
+  --text-accent: #17452F;
+  --text-on-dark: #FFFFFF;
+
+  /* Typography Families */
+  --font-family: 'Inter', 'Source Sans 3', 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: 'Inter', 'Source Sans 3', 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: 'JetBrains Mono', "SFMono-Regular", Consolas, monospace;
+
+  /* Restrained Minimal Shadows */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 1px var(--border-color);
+  --shadow-elevated: 0 4px 12px rgba(0, 0, 0, 0.07), 0 0 0 1px var(--border-color);
+
+  /* Subtle 4-6px corner radii */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-pill: 4px;
 }
 
 * {
@@ -37,12 +97,31 @@
   padding: 0;
 }
 
-body {
-  font-family: var(--font-family);
+html, body {
   background-color: var(--bg-app);
   color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Functional Clean Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #E8ECE9;
+}
+::-webkit-scrollbar-thumb {
+  background: #BCC7C1;
+  border-radius: var(--radius-xs);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--forest-green-medium);
 }
 
 button {
@@ -50,8 +129,77 @@ button {
   cursor: pointer;
   border: none;
   background: none;
+  transition: all 0.15s ease-out;
+}
+
+input, select, textarea {
+  font-family: inherit;
+  color: inherit;
 }
 
 code, pre {
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-family: var(--font-mono);
+}
+
+/* Scientific Dot Status Indicators */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-dot.online,
+.status-dot.success {
+  background-color: var(--color-success);
+}
+.status-dot.warning,
+.status-dot.moderate {
+  background-color: var(--color-warning);
+}
+.status-dot.danger,
+.status-dot.critical {
+  background-color: var(--color-danger);
+}
+.status-dot.info,
+.status-dot.cyan {
+  background-color: var(--accent-cyan);
+}
+.status-dot.offline,
+.status-dot.muted {
+  background-color: var(--text-muted);
+}
+
+/* Leaflet Clean Portal Map Styling */
+.leaflet-container {
+  background-color: #E8ECE9 !important;
+  font-family: var(--font-family) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background-color: #FFFFFF !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  border-top: 3px solid var(--forest-green-header) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-popup-tip {
+  background-color: #FFFFFF !important;
 }

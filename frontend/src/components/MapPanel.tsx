@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
-import { MapPin, Layers3, AlertTriangle, CloudSun } from 'lucide-react';
+import { MapPin, Layers3, AlertTriangle } from 'lucide-react';
 import type { MonitoredZone } from '../types';
 import type { GeocodingLocation, WeatherData } from '../types/weather';
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Database, 
-  ShieldAlert, 
   CheckCircle2, 
   AlertTriangle, 
   Cpu, 
