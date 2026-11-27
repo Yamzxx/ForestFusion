@@ -6,17 +6,13 @@ import {
   Thermometer, 
   Droplets, 
   Wind, 
-  CloudRain, 
   Activity, 
   BarChart2, 
   ShieldAlert, 
-  Info, 
   RefreshCw,
-  Sparkles,
-  Layers,
-  HelpCircle
+  Sparkles
 } from 'lucide-react';
-import type { TemporalAnalysisResponse, FireActivityPoint, EnvironmentalTrendPoint, ModelRiskTrendPoint, CorrelationMetric } from '../types/temporalAnalysis';
+import type { TemporalAnalysisResponse, ModelRiskTrendPoint, CorrelationMetric } from '../types/temporalAnalysis';
 import { fetchTemporalAnalysis } from '../services/temporalAnalysisService';
 
 interface TemporalAnalysisCardProps {
@@ -55,10 +51,6 @@ export const TemporalAnalysisCard: React.FC<TemporalAnalysisCardProps> = ({
   const maxDetections = data?.fire_activity_trend
     ? Math.max(1, ...data.fire_activity_trend.map(f => f.detection_count))
     : 1;
-
-  const maxTemp = data?.environmental_trend
-    ? Math.max(40, ...data.environmental_trend.map(e => e.temperature_2m))
-    : 40;
 
   return (
     <div className="temporal-analysis-wrapper" style={{ marginTop: '24px' }}>
@@ -297,17 +289,17 @@ export const TemporalAnalysisCard: React.FC<TemporalAnalysisCardProps> = ({
           {/* Section 3: Model-Predicted Wildfire Risk Trend (XGBoost + Platt Calibration) */}
           <div className="map-panel-card">
             <div className="panel-header-title" style={{ marginBottom: '12px' }}>
-              <Sparkles className="panel-header-icon" style={{ color: '#d97706' }} />
+              <Sparkles className="panel-header-icon" style={{ color: '#17452F' }} />
               <div>
-                <h4>3. Model-Predicted Wildfire Risk Trend (Calibrated XGBoost)</h4>
+                <h4 style={{ color: '#17452F' }}>3. Model-Predicted Wildfire Risk Trend (Calibrated XGBoost)</h4>
                 <span className="panel-subtitle">
                   Daily Platt-calibrated hazard probability evaluated by XGBoost model pipeline over observation dates
                 </span>
               </div>
             </div>
 
-            <div className="fire-records-table-wrapper">
-              <table className="fire-records-table">
+            <div style={{ overflowX: 'auto' }}>
+              <table className="scientific-data-table">
                 <thead>
                   <tr>
                     <th>Observation Date</th>
@@ -315,7 +307,7 @@ export const TemporalAnalysisCard: React.FC<TemporalAnalysisCardProps> = ({
                     <th>Raw Model Score</th>
                     <th>Validated Risk Category</th>
                     <th>Primary Contributor (TreeSHAP)</th>
-                    <th>Model Version</th>
+                    <th>Model Architecture</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -327,26 +319,26 @@ export const TemporalAnalysisCard: React.FC<TemporalAnalysisCardProps> = ({
                         <td className="table-time">
                           <Calendar className="inline-icon" /> {m.date}
                         </td>
-                        <td className="table-numeric" style={{ fontWeight: 800, color: isHigh ? '#dc2626' : isMod ? '#d97706' : '#166534' }}>
+                        <td className="table-numeric" style={{ fontWeight: 800, color: isHigh ? '#B91C1C' : isMod ? '#C25E00' : '#17452F' }}>
                           {(m.calibrated_probability * 100).toFixed(1)}%
                         </td>
-                        <td className="table-numeric" style={{ color: '#64748b' }}>
+                        <td className="table-numeric" style={{ color: '#55635C' }}>
                           {(m.raw_model_probability * 100).toFixed(1)}%
                         </td>
                         <td>
                           <span style={{
                             fontSize: '0.68rem',
                             padding: '2px 8px',
-                            borderRadius: '4px',
+                            borderRadius: '3px',
                             fontWeight: 700,
-                            backgroundColor: isHigh ? '#fee2e2' : isMod ? '#fef3c7' : '#dcfce7',
-                            color: isHigh ? '#991b1b' : isMod ? '#b45309' : '#166534'
+                            backgroundColor: isHigh ? '#FEE2E2' : isMod ? '#FEF3C7' : '#EBF3EF',
+                            color: isHigh ? '#B91C1C' : isMod ? '#92400E' : '#17452F'
                           }}>
                             {m.risk_category}
                           </span>
                         </td>
                         <td className="table-desc">{m.primary_contributor}</td>
-                        <td style={{ fontSize: '0.68rem', color: '#64748b' }}>XGBoost v1.0 (Platt Scaled)</td>
+                        <td style={{ fontSize: '0.72rem', color: '#55635C' }}>XGBoost v1.0 (Platt Scaled)</td>
                       </tr>
                     );
                   })}

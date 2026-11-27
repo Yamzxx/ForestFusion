@@ -3,98 +3,77 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, useMapEvents } from 're
 import L from 'leaflet';
 import { 
   Layers3, 
-  AlertTriangle, 
-  Globe, 
-  Crosshair, 
-  RotateCcw,
-  CheckCircle2,
-  CloudSun,
   Sparkles,
-  Info,
-  ShieldAlert,
   Activity,
-  Flame
+  Search
 } from 'lucide-react';
 import type { GeocodingLocation, WeatherState } from '../types/weather';
 import type { VegetationState } from '../types/vegetation';
 import type { FireDetectionRecord } from '../types/fire';
 import type { 
   SpatialPredictionResponse, 
-  SpatialBatchPredictionResponse,
   SpatialPredictionRequest
 } from '../types/spatial';
 import { fetchSpatialPrediction, fetchSpatialBatchPredictions } from '../services/spatialService';
 
-// Custom marker icon for NASA FIRMS satellite fire thermal anomaly detections (HISTORICAL / ACTIVE OBSERVATIONS)
+// Scientific marker icon for NASA FIRMS satellite thermal anomaly observations
 const fireDetectionMarkerIcon = L.divIcon({
   className: 'fire-leaflet-marker',
   html: `
     <div style="
-      background-color: #dc2626;
-      width: 30px;
-      height: 30px;
+      background-color: #DC2626;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
-      border: 2px solid #ffffff;
-      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.6);
+      border: 1.5px solid #FFFFFF;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #ffffff;
-      font-size: 14px;
-    ">
-      🔥
-    </div>
+      color: #FFFFFF;
+      font-size: 8px;
+      font-weight: 700;
+    ">●</div>
   `,
-  iconSize: [30, 30],
-  iconAnchor: [15, 15],
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
 });
 
-// Fix for default Leaflet icon assets in React bundled environments
-const defaultMarkerIcon = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-// Custom pin marker icon for user-selected map coordinates
+// Scientific pin marker icon for inspected map coordinates
 const selectedPinIcon = L.divIcon({
   className: 'selected-coordinate-pin',
   html: `
     <div style="
-      background-color: #1d5234;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: 3px solid #ffffff;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+      background-color: #10B981;
+      width: 20px;
+      height: 20px;
+      border-radius: 3px;
+      border: 1.5px solid #FFFFFF;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #ffffff;
-      font-weight: bold;
-      font-size: 14px;
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 11px;
+      font-family: monospace;
     ">
-      📍
+      +
     </div>
   `,
-  iconSize: [32, 32],
-  iconAnchor: [16, 16],
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
 });
 
-// Function to generate risk-color-coded marker icons for model-predicted sector locations
+// Scientific marker icon for model-predicted sector locations
 const createRiskMarkerIcon = (riskCategory: string, probability: number) => {
-  let bgColor = '#16a34a'; // Low
-  let textColor = '#ffffff';
+  let bgColor = '#10B981';
   if (riskCategory === 'Moderate') {
-    bgColor = '#d97706';
+    bgColor = '#D97706';
   } else if (riskCategory === 'High') {
-    bgColor = '#ea580c';
+    bgColor = '#EA580C';
   } else if (riskCategory === 'Very High') {
-    bgColor = '#dc2626';
+    bgColor = '#DC2626';
   }
 
   return L.divIcon({
@@ -102,27 +81,28 @@ const createRiskMarkerIcon = (riskCategory: string, probability: number) => {
     html: `
       <div style="
         background-color: ${bgColor};
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        border: 3px solid #ffffff;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+        width: 26px;
+        height: 26px;
+        border-radius: 3px;
+        border: 1.5px solid #FFFFFF;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: ${textColor};
-        font-weight: 800;
-        font-size: 11px;
+        color: #FFFFFF;
+        font-weight: 700;
+        font-size: 10px;
+        font-family: var(--font-mono, monospace);
       ">
         ${(probability * 100).toFixed(0)}%
       </div>
     `,
-    iconSize: [34, 34],
-    iconAnchor: [17, 17],
+    iconSize: [26, 26],
+    iconAnchor: [13, 13],
   });
 };
 
-// Leaflet click handler component for capturing click coordinates
+// Leaflet click handler component for capturing coordinates
 interface MapClickHandlerProps {
   onLocationSelect: (lat: number, lng: number) => void;
 }
@@ -150,24 +130,24 @@ const TILE_PROVIDERS: Record<TileProviderKey, TileProviderInfo> = {
   streets: {
     name: 'OpenStreetMap (Streets)',
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    description: 'Standard cartographic street map with detailed roads, settlements, and administrative boundaries.'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    description: 'Standard cartographic street map with administrative boundaries and settlements.'
   },
   satellite: {
     name: 'Esri World Imagery (Satellite)',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and GIS User Community',
-    description: 'High-resolution optical satellite imagery (Esri World Imagery tile set).'
+    attribution: 'Tiles &copy; Esri &mdash; High-resolution optical satellite imagery',
+    description: 'High-resolution optical satellite surface imagery (Copernicus / Esri World Imagery).'
   },
   topographic: {
     name: 'OpenTopoMap (Topographic)',
     url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-    attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)',
-    description: 'Topographic contours, elevation lines, and terrain landcover relief.'
+    attribution: 'Map data: &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
+    description: 'Topographic elevation contours and mountain terrain relief.'
   }
 };
 
-// Monitored Forest Sectors for spatial batch predictions
+// Monitored Forest Sectors
 const MONITORED_SECTORS: SpatialPredictionRequest[] = [
   {
     latitude: 11.664,
@@ -235,42 +215,44 @@ interface RiskMapPageProps {
   vegetationState?: VegetationState;
 }
 
-export const RiskMapPage: React.FC<RiskMapPageProps> = ({ 
-  onSelectWeatherLocation, 
+export const RiskMapPage: React.FC<RiskMapPageProps> = ({
+  onSelectWeatherLocation,
   activeWeatherLocationName,
   fireDetections = [],
   weatherState,
   vegetationState
 }) => {
-  const [activeTileKey, setActiveTileKey] = useState<TileProviderKey>('streets');
+  const defaultCenter: [number, number] = [11.6667, 76.6333];
+  const defaultZoom = 9;
+
+  const [activeTileKey, setActiveTileKey] = useState<TileProviderKey>('satellite');
   const [showRiskOverlay, setShowRiskOverlay] = useState<boolean>(true);
   const [showDemoZones, setShowDemoZones] = useState<boolean>(true);
   const [showFireLayer, setShowFireLayer] = useState<boolean>(true);
+
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number } | null>(null);
-
-  // Model-backed spatial prediction state for clicked pin
   const [pinPrediction, setPinPrediction] = useState<SpatialPredictionResponse | null>(null);
-  const [pinPredLoading, setPinPredLoading] = useState<boolean>(false);
+  const [pinLoading, setPinLoading] = useState<boolean>(false);
+  const [pinError, setPinError] = useState<string | null>(null);
 
-  // Model-backed batch spatial predictions for monitored sectors
   const [sectorPredictions, setSectorPredictions] = useState<SpatialPredictionResponse[]>([]);
-  const [sectorsLoading, setSectorsLoading] = useState<boolean>(false);
-
-  // Initial geographic extent centered around Western Ghats forest region
-  const defaultCenter: [number, number] = [11.70, 76.40];
-  const defaultZoom = 10;
+  const [_sectorsLoading, setSectorsLoading] = useState<boolean>(false);
 
   const currentTile = TILE_PROVIDERS[activeTileKey];
 
-  // Fetch batch sector predictions on initial mount
+  // Batch predict monitored sectors on mount
   useEffect(() => {
     let active = true;
     setSectorsLoading(true);
+
     fetchSpatialBatchPredictions({ locations: MONITORED_SECTORS })
       .then((res) => {
         if (active && res.predictions) {
           setSectorPredictions(res.predictions);
         }
+      })
+      .catch((err) => {
+        console.error('Failed to load batch predictions for sectors:', err);
       })
       .finally(() => {
         if (active) setSectorsLoading(false);
@@ -281,64 +263,39 @@ export const RiskMapPage: React.FC<RiskMapPageProps> = ({
     };
   }, []);
 
-  // When user clicks a location on the map, trigger model prediction pipeline via spatial API
-  useEffect(() => {
-    if (!selectedLocation) {
-      setPinPrediction(null);
-      return;
-    }
-
-    let active = true;
-    setPinPredLoading(true);
-
-    // Prepare environmental inputs if available from current active weather/vegetation state
-    const isNearbyWeather = Boolean(
-      weatherState?.data &&
-      Math.abs(selectedLocation.lat - weatherState.selectedLocation.latitude) < 0.08 &&
-      Math.abs(selectedLocation.lng - weatherState.selectedLocation.longitude) < 0.08
-    );
-
-    let envInputs = undefined;
-    if (isNearbyWeather && weatherState?.data) {
-      const cur = weatherState.data.current;
-      envInputs = {
-        temperature_2m: cur.temperature_2m,
-        relative_humidity_2m: cur.relative_humidity_2m,
-        wind_speed_10m: cur.wind_speed_10m,
-        precipitation: cur.precipitation ?? 0.0,
-        ndvi: vegetationState?.data?.latest_observation?.ndvi ?? 0.48,
-        ndmi: vegetationState?.data?.latest_observation?.ndmi ?? -0.05,
-        month: new Date().getMonth() + 1,
-        latitude: selectedLocation.lat,
-        longitude: selectedLocation.lng
-      };
-    }
-
-    fetchSpatialPrediction({
-      latitude: selectedLocation.lat,
-      longitude: selectedLocation.lng,
-      location_name: `Inspected Point (${selectedLocation.lat.toFixed(3)}°, ${selectedLocation.lng.toFixed(3)}°)`,
-      environmental_inputs: envInputs
-    })
-      .then((res) => {
-        if (active) {
-          setPinPrediction(res);
-        }
-      })
-      .finally(() => {
-        if (active) setPinPredLoading(false);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [selectedLocation, weatherState?.data, vegetationState?.data]);
-
-  const handleLocationClick = (lat: number, lng: number) => {
+  // Handle click on map to evaluate point
+  const handleLocationClick = async (lat: number, lng: number) => {
     setSelectedLocation({ lat, lng });
+    setPinLoading(true);
+    setPinError(null);
+    setPinPrediction(null);
+
+    const inputs = weatherState?.data ? {
+      temperature_2m: weatherState.data.current.temperature_2m,
+      relative_humidity_2m: weatherState.data.current.relative_humidity_2m,
+      wind_speed_10m: weatherState.data.current.wind_speed_10m,
+      precipitation: weatherState.data.current.precipitation,
+      ndvi: vegetationState?.data?.latest_observation?.ndvi ?? 0.45,
+      ndmi: -0.05,
+      month: new Date().getMonth() + 1
+    } : undefined;
+
+    try {
+      const pred = await fetchSpatialPrediction({
+        latitude: lat,
+        longitude: lng,
+        location_name: `Point (${lat.toFixed(3)}°, ${lng.toFixed(3)}°)`,
+        environmental_inputs: inputs
+      });
+      setPinPrediction(pred);
+    } catch (err: any) {
+      setPinError(err.message || 'Failed to compute point prediction');
+    } finally {
+      setPinLoading(false);
+    }
   };
 
-  const handleClearSelection = () => {
+  const handleClearPin = () => {
     setSelectedLocation(null);
     setPinPrediction(null);
   };
@@ -354,578 +311,418 @@ export const RiskMapPage: React.FC<RiskMapPageProps> = ({
     }
   };
 
-  const getRiskColorStyle = (category: string) => {
+  const getRiskColor = (category?: string) => {
     switch (category) {
-      case 'Very High':
-        return { bg: '#fee2e2', text: '#991b1b', border: '#fca5a5', badge: 'EXTREME' };
-      case 'High':
-        return { bg: '#ffedd5', text: '#c2410c', border: '#fdba74', badge: 'HIGH' };
-      case 'Moderate':
-        return { bg: '#fef3c7', text: '#b45309', border: '#fcd34d', badge: 'MODERATE' };
-      case 'Low':
-      default:
-        return { bg: '#dcfce7', text: '#166534', border: '#86efac', badge: 'LOW' };
+      case 'Very High': return '#DC2626';
+      case 'High': return '#EA580C';
+      case 'Moderate': return '#D97706';
+      default: return '#10B981';
     }
   };
 
   return (
-    <div className="page-container risk-map-page">
-      {/* Top Map Header & Controls Card */}
-      <div className="map-panel-card">
-        <div className="panel-header">
-          <div className="panel-header-title">
-            <Layers3 className="panel-header-icon" />
-            <div>
-              <h3>Interactive Wildfire Risk Map</h3>
-              <span className="panel-subtitle">
-                Model-backed wildfire hazard predictions with calibrated probabilities, SHAP explainability, and historical FIRMS detections
-              </span>
-            </div>
-          </div>
-
-          <div className="panel-controls">
-            {/* Basemap Switcher */}
-            <div className="map-type-toggle" title="Select geographic basemap tile provider">
-              <button
-                className={`toggle-btn ${activeTileKey === 'streets' ? 'active' : ''}`}
-                onClick={() => setActiveTileKey('streets')}
-              >
-                Streets
-              </button>
-              <button
-                className={`toggle-btn ${activeTileKey === 'satellite' ? 'active' : ''}`}
-                onClick={() => setActiveTileKey('satellite')}
-              >
-                Satellite (Esri)
-              </button>
-              <button
-                className={`toggle-btn ${activeTileKey === 'topographic' ? 'active' : ''}`}
-                onClick={() => setActiveTileKey('topographic')}
-              >
-                Topographic
-              </button>
-            </div>
-
-            {/* Layer Toggles */}
-            <label className="checkbox-toggle" title="Toggle XGBoost model risk predictions layer">
-              <input
-                type="checkbox"
-                checked={showRiskOverlay}
-                onChange={(e) => setShowRiskOverlay(e.target.checked)}
-              />
-              <span style={{ fontWeight: 600, color: '#0369a1' }}>🤖 Model Risk Predictions</span>
-            </label>
-
-            <label className="checkbox-toggle" title="Toggle reference sector bounding boxes">
-              <input
-                type="checkbox"
-                checked={showDemoZones}
-                onChange={(e) => setShowDemoZones(e.target.checked)}
-              />
-              <span>Sector Boundaries</span>
-            </label>
-
-            {fireDetections.length > 0 && (
-              <label className="checkbox-toggle" title="Toggle NASA FIRMS Satellite Active Fire Markers">
-                <input
-                  type="checkbox"
-                  checked={showFireLayer}
-                  onChange={(e) => setShowFireLayer(e.target.checked)}
-                />
-                <span style={{ color: '#dc2626', fontWeight: 600 }}>🔥 FIRMS Hotspots ({fireDetections.length})</span>
-              </label>
-            )}
-          </div>
-        </div>
-
-        {/* Spatial Coverage & Methodology Limitations Notice */}
-        <div style={{
-          marginTop: '12px',
-          padding: '10px 14px',
-          backgroundColor: '#f0f9ff',
-          border: '1px solid #bae6fd',
-          borderRadius: '8px',
+    <div className="page-container risk-map-page" style={{ padding: 0 }}>
+      {/* Top Scientific Toolbar: Copernicus / NASA Worldview inspired */}
+      <div 
+        className="map-top-toolbar"
+        style={{
           display: 'flex',
-          alignItems: 'flex-start',
-          gap: '10px'
-        }}>
-          <Info size={18} style={{ color: '#0284c7', flexShrink: 0, marginTop: '2px' }} />
-          <div style={{ fontSize: '0.76rem', color: '#0369a1', lineHeight: 1.45 }}>
-            <strong>Spatial Coverage Notice:</strong> Model predictions are generated exclusively for locations backed by verified environmental and satellite inputs. 
-            ForestFusion does not extrapolate or generate synthetic continuous risk surfaces over unmonitored locations. 
-            Click any point on the map to evaluate point-based predictions and local TreeSHAP explanations.
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+          padding: '12px 20px',
+          backgroundColor: '#0E1418',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Layers3 size={18} style={{ color: '#10B981' }} />
+          <div>
+            <h2 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#F1F5F9', margin: 0 }}>
+              Geospatial Wildfire Susceptibility & Observation Viewer
+            </h2>
+            <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>
+              Calibrated tree ensemble risk surface overlayed with Sentinel-2 MSI and NASA FIRMS active fire detections
+              {activeWeatherLocationName ? ` • Focus: ${activeWeatherLocationName}` : ''}
+            </span>
           </div>
         </div>
 
-        {/* Main Map Container */}
-        <div className="map-container-wrapper" style={{ marginTop: '16px' }}>
-          <MapContainer
-            center={defaultCenter}
-            zoom={defaultZoom}
-            scrollWheelZoom={true}
-            style={{ width: '100%', height: '540px', borderRadius: '8px', zIndex: 1 }}
-          >
-            {/* Active Basemap Tile Layer */}
-            <TileLayer
-              key={activeTileKey}
-              attribution={currentTile.attribution}
-              url={currentTile.url}
-              maxZoom={18}
-            />
-
-            {/* Click Handler to Pick Coordinates */}
-            <MapClickHandler onLocationSelect={handleLocationClick} />
-
-            {/* User-Selected Location Marker & Model Risk Inspection Popup */}
-            {selectedLocation && (
-              <Marker
-                position={[selectedLocation.lat, selectedLocation.lng]}
-                icon={selectedPinIcon}
-              >
-                <Popup>
-                  <div className="map-popup-content" style={{ minWidth: '240px', maxWidth: '310px' }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.86rem', color: '#0f172a', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span>📍 Inspected Coordinate</span>
-                      <span style={{ fontSize: '0.66rem', color: '#64748b', fontWeight: 500 }}>
-                        {selectedLocation.lat.toFixed(4)}°, {selectedLocation.lng.toFixed(4)}°
-                      </span>
-                    </div>
-
-                    {pinPredLoading ? (
-                      <div style={{ padding: '12px 8px', fontSize: '0.75rem', color: '#0284c7', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <Activity size={14} className="animate-spin" />
-                        <span>Running XGBoost model inference & Platt calibration...</span>
-                      </div>
-                    ) : pinPrediction ? (
-                      !pinPrediction.is_prediction_available ? (
-                        <div style={{
-                          marginTop: '8px',
-                          padding: '10px',
-                          backgroundColor: '#fffbeb',
-                          border: '1px solid #fde68a',
-                          borderRadius: '6px'
-                        }}>
-                          <div style={{ color: '#b45309', fontWeight: 700, fontSize: '0.76rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <AlertTriangle size={14} />
-                            <span>Risk Prediction Unavailable</span>
-                          </div>
-                          <p style={{ margin: '4px 0 0 0', fontSize: '0.70rem', color: '#78350f', lineHeight: 1.35 }}>
-                            {pinPrediction.error_message || 'Required meteorological inputs could not be fetched for these coordinates.'}
-                          </p>
-                          <p style={{ margin: '4px 0 0 0', fontSize: '0.66rem', color: '#92400e', fontStyle: 'italic' }}>
-                            * ForestFusion does not insert fake weather or mock probabilities.
-                          </p>
-                        </div>
-                      ) : (
-                        <div style={{ marginTop: '8px' }}>
-                          {/* Risk Category & Calibrated Probability */}
-                          {(() => {
-                            const style = getRiskColorStyle(pinPrediction.risk_category);
-                            return (
-                              <div style={{
-                                backgroundColor: style.bg,
-                                border: `1px solid ${style.border}`,
-                                borderRadius: '6px',
-                                padding: '8px 10px',
-                                marginBottom: '8px'
-                              }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                  <span style={{ fontSize: '0.72rem', fontWeight: 600, color: style.text, textTransform: 'uppercase' }}>
-                                    Model Risk Category
-                                  </span>
-                                  <span style={{
-                                    fontSize: '0.68rem',
-                                    padding: '2px 7px',
-                                    borderRadius: '4px',
-                                    backgroundColor: style.text,
-                                    color: '#ffffff',
-                                    fontWeight: 700
-                                  }}>
-                                    {pinPrediction.risk_category}
-                                  </span>
-                                </div>
-                                <div style={{ marginTop: '4px', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                                  <span style={{ fontSize: '1.25rem', fontWeight: 800, color: style.text }}>
-                                    {(pinPrediction.calibrated_probability * 100).toFixed(1)}%
-                                  </span>
-                                  <span style={{ fontSize: '0.68rem', color: style.text, fontWeight: 600 }}>
-                                    Calibrated Probability
-                                  </span>
-                                </div>
-                                <div style={{ fontSize: '0.64rem', color: '#475569', marginTop: '2px' }}>
-                                  Raw Model Score: {(pinPrediction.raw_model_probability * 100).toFixed(1)}% (Uncalibrated margin: {pinPrediction.raw_margin})
-                                </div>
-                              </div>
-                            );
-                          })()}
-
-                          {/* Environmental Context */}
-                          <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                            Meteorological & Satellite Inputs:
-                          </div>
-                          <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 1fr',
-                            gap: '4px',
-                            backgroundColor: '#f8fafc',
-                            padding: '6px 8px',
-                            borderRadius: '4px',
-                            fontSize: '0.68rem',
-                            border: '1px solid #e2e8f0'
-                          }}>
-                            <div>Temp: <strong>{pinPrediction.features_used.temperature_2m}°C</strong></div>
-                            <div>Humidity: <strong>{pinPrediction.features_used.relative_humidity_2m}%</strong></div>
-                            <div>Wind: <strong>{pinPrediction.features_used.wind_speed_10m} km/h</strong></div>
-                            <div>Precip: <strong>{pinPrediction.features_used.precipitation} mm</strong></div>
-                            <div>NDVI: <strong>{pinPrediction.features_used.ndvi}</strong></div>
-                            <div>NDMI: <strong>{pinPrediction.features_used.ndmi ?? 'N/A'}</strong></div>
-                          </div>
-                          <div style={{ fontSize: '0.62rem', color: '#64748b', marginTop: '3px' }}>
-                            Source: {pinPrediction.features_used.telemetry_source}
-                          </div>
-
-                          {/* TreeSHAP Explanation */}
-                          {pinPrediction.shap_explanation && pinPrediction.shap_explanation.top_contributors.length > 0 && (
-                            <div style={{ marginTop: '8px', borderTop: '1px solid #e2e8f0', paddingTop: '6px' }}>
-                              <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#1e293b', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <Sparkles size={12} className="text-amber-500" />
-                                <span>Model Explanation (TreeSHAP):</span>
-                              </div>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                                {pinPrediction.shap_explanation.top_contributors.slice(0, 3).map((item) => (
-                                  <div
-                                    key={item.feature}
-                                    style={{
-                                      fontSize: '0.66rem',
-                                      display: 'flex',
-                                      justifyContent: 'space-between',
-                                      alignItems: 'center',
-                                      padding: '3px 6px',
-                                      backgroundColor: item.shap_value >= 0 ? '#fff1f2' : '#f0fdf4',
-                                      borderRadius: '3px',
-                                      borderLeft: `3px solid ${item.shap_value >= 0 ? '#e11d48' : '#16a34a'}`
-                                    }}
-                                  >
-                                    <span style={{ color: '#1e293b', fontWeight: 500 }}>
-                                      {item.feature} ({typeof item.feature_value === 'number' ? item.feature_value.toFixed(1) : item.feature_value})
-                                    </span>
-                                    <span style={{ fontWeight: 700, color: item.shap_value >= 0 ? '#be123c' : '#15803d' }}>
-                                      {item.shap_value >= 0 ? '+' : ''}{item.shap_value.toFixed(2)} ({item.shap_value >= 0 ? '↑ risk' : '↓ risk'})
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                              <div style={{ marginTop: '4px', fontSize: '0.62rem', color: '#64748b', fontStyle: 'italic', lineHeight: 1.25 }}>
-                                * SHAP explains model margin behavior, not physical wildfire causality.
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Scientific Disclaimer */}
-                          <div style={{ marginTop: '8px', fontSize: '0.60rem', color: '#94a3b8', borderTop: '1px solid #f1f5f9', paddingTop: '4px', lineHeight: 1.25 }}>
-                            {pinPrediction.scientific_disclaimer}
-                          </div>
-                        </div>
-                      )
-                    ) : null}
-
-                    {onSelectWeatherLocation && (
-                      <button
-                        type="button"
-                        onClick={handleFetchWeatherForPin}
-                        style={{
-                          marginTop: '8px',
-                          width: '100%',
-                          backgroundColor: '#0284c7',
-                          color: '#ffffff',
-                          border: 'none',
-                          padding: '5px 8px',
-                          borderRadius: '4px',
-                          fontSize: '0.72rem',
-                          fontWeight: 600,
-                          cursor: 'pointer'
-                        }}
-                      >
-                        🌤️ Fetch Open-Meteo Weather Here
-                      </button>
-                    )}
-                  </div>
-                </Popup>
-              </Marker>
-            )}
-
-            {/* Model-Backed Risk Predictions Layer (Circles & Risk Markers for Monitored Sectors) */}
-            {showRiskOverlay && sectorPredictions.map((pred) => {
-              const style = getRiskColorStyle(pred.risk_category);
-              return (
-                <React.Fragment key={pred.location_name}>
-                  <Circle
-                    center={[pred.latitude, pred.longitude]}
-                    radius={5000}
-                    pathOptions={{
-                      color: style.text,
-                      fillColor: style.text,
-                      fillOpacity: 0.22,
-                      weight: 2
-                    }}
-                  />
-                  <Marker
-                    position={[pred.latitude, pred.longitude]}
-                    icon={createRiskMarkerIcon(pred.risk_category, pred.calibrated_probability)}
-                  >
-                    <Popup>
-                      <div className="map-popup-content" style={{ minWidth: '240px', maxWidth: '300px' }}>
-                        <div className="popup-header" style={{ borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
-                          <strong style={{ color: '#0f172a' }}>{pred.location_name}</strong>
-                          <span style={{
-                            fontSize: '0.68rem',
-                            padding: '2px 7px',
-                            borderRadius: '4px',
-                            backgroundColor: style.bg,
-                            color: style.text,
-                            fontWeight: 700,
-                            border: `1px solid ${style.border}`
-                          }}>
-                            {pred.risk_category} Risk
-                          </span>
-                        </div>
-
-                        <div style={{ marginTop: '8px' }}>
-                          <div style={{ fontSize: '0.74rem', color: '#334155' }}>
-                            Calibrated Probability: <strong>{(pred.calibrated_probability * 100).toFixed(1)}%</strong>
-                          </div>
-                          <div style={{ fontSize: '0.66rem', color: '#64748b' }}>
-                            Raw XGBoost Score: {(pred.raw_model_probability * 100).toFixed(1)}% ({pred.calibration_method})
-                          </div>
-                          <div style={{ fontSize: '0.66rem', color: '#64748b' }}>
-                            Model Version: {pred.model_version}
-                          </div>
-
-                          <div style={{ marginTop: '6px', fontSize: '0.70rem', fontWeight: 700, color: '#334155' }}>
-                            Sector Telemetry:
-                          </div>
-                          <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 1fr',
-                            gap: '3px',
-                            fontSize: '0.68rem',
-                            backgroundColor: '#f8fafc',
-                            padding: '5px',
-                            borderRadius: '4px'
-                          }}>
-                            <div>Temp: <strong>{pred.features_used.temperature_2m}°C</strong></div>
-                            <div>Humidity: <strong>{pred.features_used.relative_humidity_2m}%</strong></div>
-                            <div>Wind: <strong>{pred.features_used.wind_speed_10m} km/h</strong></div>
-                            <div>NDVI: <strong>{pred.features_used.ndvi}</strong></div>
-                          </div>
-
-                          {pred.shap_explanation && pred.shap_explanation.top_contributors.length > 0 && (
-                            <div style={{ marginTop: '6px', borderTop: '1px solid #f1f5f9', paddingTop: '4px' }}>
-                              <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#1e293b' }}>
-                                Top SHAP Risk Contributor:
-                              </div>
-                              <div style={{ fontSize: '0.66rem', color: '#be123c', fontWeight: 600 }}>
-                                • {pred.shap_explanation.top_contributors[0].feature}: +{pred.shap_explanation.top_contributors[0].shap_value.toFixed(2)} SHAP
-                              </div>
-                            </div>
-                          )}
-
-                          <div style={{ marginTop: '6px', fontSize: '0.60rem', color: '#94a3b8', fontStyle: 'italic' }}>
-                            [MODEL-BACKED WILDFIRE RISK PREDICTION]
-                          </div>
-                        </div>
-                      </div>
-                    </Popup>
-                  </Marker>
-                </React.Fragment>
-              );
-            })}
-
-            {/* Genuine NASA FIRMS Active Fire Thermal Hotspot Detections (HISTORICAL / SATELLITE OBSERVATIONS) */}
-            {showFireLayer && fireDetections.map((fire) => (
-              <Marker
-                key={fire.id}
-                position={[fire.latitude, fire.longitude]}
-                icon={fireDetectionMarkerIcon}
-              >
-                <Popup>
-                  <div className="map-popup-content">
-                    <div className="popup-header" style={{ borderBottom: '1px solid #fee2e2', paddingBottom: '4px' }}>
-                      <strong style={{ color: '#991b1b', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        🔥 FIRMS Thermal Anomaly
-                      </strong>
-                      <span className="popup-risk-badge" style={{ backgroundColor: '#fee2e2', color: '#991b1b' }}>
-                        {fire.confidence} Confidence
-                      </span>
-                    </div>
-                    <div className="popup-grid" style={{ marginTop: '8px' }}>
-                      <div className="popup-item">
-                        <span>Observed Date:</span> <strong>{fire.acq_date} ({fire.acq_time} UTC)</strong>
-                      </div>
-                      <div className="popup-item">
-                        <span>Coordinates:</span> <strong>{fire.latitude.toFixed(4)}°, {fire.longitude.toFixed(4)}°</strong>
-                      </div>
-                      <div className="popup-item">
-                        <span>Satellite / Sensor:</span> <strong>{fire.satellite} / {fire.instrument}</strong>
-                      </div>
-                      {fire.brightness !== undefined && (
-                        <div className="popup-item">
-                          <span>Brightness Temp:</span> <strong>{fire.brightness} K</strong>
-                        </div>
-                      )}
-                      {fire.frp !== undefined && fire.frp !== null && (
-                        <div className="popup-item">
-                          <span>Fire Power (FRP):</span> <strong>{fire.frp} MW</strong>
-                        </div>
-                      )}
-                      <div className="popup-item">
-                        <span>Day/Night Scan:</span> <strong>{fire.daynight === 'D' ? 'Daytime' : 'Nighttime'}</strong>
-                      </div>
-                    </div>
-                    <div className="popup-footer" style={{ marginTop: '8px', color: '#7f1d1d', fontSize: '0.7rem' }}>
-                      <em>Data Provider: NASA FIRMS ({fire.instrument})</em>
-                      <br />
-                      <span style={{ fontWeight: 700, color: '#dc2626' }}>[HISTORICAL WILDFIRE DETECTION — NOT MODEL PREDICTION]</span>
-                    </div>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-
-            {/* Illustrative Reference Sector Circles */}
-            {showDemoZones && MONITORED_SECTORS.map((sector) => (
-              <Circle
-                key={`sector-box-${sector.location_name}`}
-                center={[sector.latitude, sector.longitude]}
-                radius={8000}
-                pathOptions={{
-                  color: '#475569',
-                  fillColor: '#94a3b8',
-                  fillOpacity: 0.05,
-                  weight: 1,
-                  dashArray: '4, 4'
-                }}
-              />
-            ))}
-          </MapContainer>
-
-          {/* Map Legend Overlay */}
-          <div className="map-legend" style={{ minWidth: '220px' }}>
-            <div className="legend-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Layers3 size={14} /> Map Layers Legend
-            </div>
-            
-            <div className="legend-items" style={{ marginTop: '6px' }}>
-              <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                🤖 Model-Predicted Risk (Calibrated):
-              </div>
-              <div className="legend-item"><span className="legend-dot green"></span> Low Risk (&lt;35%)</div>
-              <div className="legend-item"><span className="legend-dot amber"></span> Moderate Risk (35%–54%)</div>
-              <div className="legend-item"><span className="legend-dot orange"></span> High Risk (55%–74%)</div>
-              <div className="legend-item"><span className="legend-dot red"></span> Extreme / Very High (≥75%)</div>
-
-              <div className="legend-divider" style={{ borderTop: '1px solid #e2e8f0', margin: '6px 0' }}></div>
-
-              <div style={{ fontSize: '0.68rem', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                📡 Satellite Thermal Detections:
-              </div>
-              <div className="legend-item" style={{ color: '#dc2626', fontWeight: 600 }}>
-                <span className="legend-dot red" style={{ backgroundColor: '#dc2626' }}></span> 🔥 NASA FIRMS Fire Hotspot
-              </div>
-              <div style={{ fontSize: '0.62rem', color: '#64748b', fontStyle: 'italic', marginLeft: '16px' }}>
-                (Historical observation, distinct from prediction)
-              </div>
-
-              <div className="legend-divider" style={{ borderTop: '1px solid #e2e8f0', margin: '6px 0' }}></div>
-              <div className="legend-subnote" style={{ fontSize: '0.66rem', color: '#64748b' }}>
-                * Basemap: {currentTile.name}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Selected Coordinates Inspection Bar */}
-        <div className="coordinate-inspection-bar">
-          <div className="inspection-left">
-            <Crosshair className="inspection-icon" />
-            {selectedLocation ? (
-              <div>
-                <span className="inspection-title">Inspected Map Coordinate:</span>
-                <strong className="inspection-coords">
-                  {selectedLocation.lat.toFixed(5)}° N, {selectedLocation.lng.toFixed(5)}° E
-                </strong>
-              </div>
-            ) : (
-              <div>
-                <span className="inspection-title">Geospatial Coordinate Inspector:</span>
-                <span className="inspection-placeholder">
-                  Click any location on the map to evaluate model-backed risk predictions, Platt probability, and TreeSHAP attribution.
-                </span>
-              </div>
-            )}
-          </div>
-
-          <div className="inspection-right">
-            {selectedLocation && onSelectWeatherLocation && (
-              <button 
+        {/* Layer Controls & Basemap Switcher */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+          {/* Basemap Selection */}
+          <div style={{ display: 'flex', borderRadius: '4px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.12)' }}>
+            {(['satellite', 'streets', 'topographic'] as const).map(key => (
+              <button
+                key={key}
                 type="button"
-                className="clear-selection-btn" 
-                onClick={handleFetchWeatherForPin}
-                style={{ backgroundColor: '#f0f9ff', color: '#0369a1', borderColor: '#bae6fd' }}
+                onClick={() => setActiveTileKey(key)}
+                style={{
+                  backgroundColor: activeTileKey === key ? '#10B981' : '#111917',
+                  color: activeTileKey === key ? '#0B0F12' : '#94A3B8',
+                  padding: '5px 10px',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  textTransform: 'capitalize'
+                }}
               >
-                <CloudSun className="btn-icon" /> Set as Weather Location
+                {key}
               </button>
-            )}
-            {selectedLocation && (
-              <button className="clear-selection-btn" onClick={handleClearSelection}>
-                <RotateCcw className="btn-icon" /> Clear Selection
-              </button>
-            )}
-            <div className="tile-provider-badge" title={currentTile.description}>
-              <Globe className="badge-icon" />
-              <span>{currentTile.name}</span>
-            </div>
+            ))}
           </div>
+
+          {/* Layer Toggles */}
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.74rem', color: '#F1F5F9', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={showRiskOverlay}
+              onChange={(e) => setShowRiskOverlay(e.target.checked)}
+              style={{ accentColor: '#10B981' }}
+            />
+            <span>● Model Risk Predictions</span>
+          </label>
+
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.74rem', color: '#F1F5F9', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={showDemoZones}
+              onChange={(e) => setShowDemoZones(e.target.checked)}
+              style={{ accentColor: '#10B981' }}
+            />
+            <span>Sector Perimeters</span>
+          </label>
+
+          {fireDetections.length > 0 && (
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.74rem', color: '#F87171', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={showFireLayer}
+                onChange={(e) => setShowFireLayer(e.target.checked)}
+                style={{ accentColor: '#DC2626' }}
+              />
+              <span>● FIRMS Hotspots ({fireDetections.length})</span>
+            </label>
+          )}
         </div>
       </div>
 
-      {/* Scientific Integrity & Architecture Specifications Grid */}
-      <div className="map-specifications-grid" style={{ marginTop: '24px' }}>
-        <div className="spec-card">
-          <div className="spec-card-header">
-            <Activity className="spec-icon blue" />
-            <h4>Model Spatial Pipeline Architecture</h4>
+      {/* Main Map-First Workspace */}
+      <div style={{ position: 'relative', width: '100%', height: 'calc(100vh - 170px)', minHeight: '600px' }}>
+        <MapContainer
+          center={defaultCenter}
+          zoom={defaultZoom}
+          scrollWheelZoom={true}
+          style={{ width: '100%', height: '100%' }}
+        >
+          {/* Active Basemap Tile Layer */}
+          <TileLayer
+            key={activeTileKey}
+            attribution={currentTile.attribution}
+            url={currentTile.url}
+            maxZoom={18}
+          />
+
+          {/* Click Handler to Pick Coordinates */}
+          <MapClickHandler onLocationSelect={handleLocationClick} />
+
+          {/* User-Selected Location Marker & Inspection Popup */}
+          {selectedLocation && (
+            <Marker
+              position={[selectedLocation.lat, selectedLocation.lng]}
+              icon={selectedPinIcon}
+            >
+              <Popup>
+                <div style={{ minWidth: '260px', maxWidth: '320px', padding: '4px' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.82rem', color: '#F1F5F9', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Inspected Coordinate</span>
+                    <span style={{ fontSize: '0.68rem', color: '#94A3B8', fontFamily: 'monospace' }}>
+                      {selectedLocation.lat.toFixed(4)}°, {selectedLocation.lng.toFixed(4)}°
+                    </span>
+                  </div>
+
+                  {pinLoading && (
+                    <div style={{ padding: '12px 0', display: 'flex', alignItems: 'center', gap: '8px', color: '#10B981', fontSize: '0.78rem' }}>
+                      <Activity className="animate-spin" size={16} />
+                      <span>Computing point-based TreeSHAP inference...</span>
+                    </div>
+                  )}
+
+                  {pinError && (
+                    <div style={{ padding: '8px 0', color: '#DC2626', fontSize: '0.74rem' }}>
+                      {pinError}
+                    </div>
+                  )}
+
+                  {pinPrediction && (
+                    <div style={{ marginTop: '8px' }}>
+                      <div style={{
+                        padding: '8px 10px',
+                        backgroundColor: '#162420',
+                        borderRadius: '4px',
+                        marginBottom: '8px',
+                        border: '1px solid rgba(16, 185, 129, 0.25)'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.70rem', fontWeight: 600, color: '#94A3B8', textTransform: 'uppercase' }}>
+                            Model Risk Category
+                          </span>
+                          <span style={{
+                            fontSize: '0.68rem',
+                            padding: '2px 6px',
+                            borderRadius: '3px',
+                            backgroundColor: getRiskColor(pinPrediction.risk_category),
+                            color: '#FFFFFF',
+                            fontWeight: 700
+                          }}>
+                            {pinPrediction.risk_category}
+                          </span>
+                        </div>
+                        <div style={{ marginTop: '4px', display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                          <span style={{ fontSize: '1.2rem', fontWeight: 800, color: getRiskColor(pinPrediction.risk_category) }}>
+                            {(pinPrediction.calibrated_probability * 100).toFixed(1)}%
+                          </span>
+                          <span style={{ fontSize: '0.68rem', color: '#94A3B8' }}>
+                            Calibrated Probability
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Inputs Table */}
+                      <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: '4px',
+                        backgroundColor: '#111917',
+                        padding: '6px 8px',
+                        borderRadius: '4px',
+                        fontSize: '0.68rem',
+                        border: '1px solid rgba(255, 255, 255, 0.06)'
+                      }}>
+                        <div>Temp: <strong>{pinPrediction.features_used.temperature_2m}°C</strong></div>
+                        <div>RH: <strong>{pinPrediction.features_used.relative_humidity_2m}%</strong></div>
+                        <div>Wind: <strong>{pinPrediction.features_used.wind_speed_10m} km/h</strong></div>
+                        <div>NDVI: <strong>{pinPrediction.features_used.ndvi}</strong></div>
+                      </div>
+
+                      {/* TreeSHAP Local Contributors */}
+                      {pinPrediction.shap_explanation?.feature_contributions && (
+                        <div style={{ marginTop: '8px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '6px' }}>
+                          <div style={{ fontSize: '0.70rem', fontWeight: 700, color: '#F1F5F9', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Sparkles size={11} style={{ color: '#F59E0B' }} />
+                            <span>Primary Drivers (TreeSHAP):</span>
+                          </div>
+                          {pinPrediction.shap_explanation.feature_contributions.slice(0, 3).map((item) => (
+                            <div
+                              key={item.feature_name}
+                              style={{
+                                fontSize: '0.66rem',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                padding: '2px 4px',
+                                color: '#CBD5E1'
+                              }}
+                            >
+                              <span>{item.feature_name.replace(/_/g, ' ')}</span>
+                              <strong style={{ color: item.shap_value >= 0 ? '#F87171' : '#10B981' }}>
+                                {item.shap_value >= 0 ? `+${item.shap_value.toFixed(3)}` : item.shap_value.toFixed(3)}
+                              </strong>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <div style={{ marginTop: '8px', display: 'flex', gap: '6px' }}>
+                        <button
+                          type="button"
+                          onClick={handleFetchWeatherForPin}
+                          style={{
+                            flex: 1,
+                            backgroundColor: '#10B981',
+                            color: '#0B0F12',
+                            padding: '4px 8px',
+                            borderRadius: '3px',
+                            fontSize: '0.68rem',
+                            fontWeight: 700
+                          }}
+                        >
+                          Focus Telemetry
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleClearPin}
+                          style={{
+                            backgroundColor: '#14201C',
+                            color: '#94A3B8',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            padding: '4px 8px',
+                            borderRadius: '3px',
+                            fontSize: '0.68rem'
+                          }}
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          )}
+
+          {/* Model Risk Overlay & Circle Perimeters for Monitored Sectors */}
+          {showRiskOverlay && sectorPredictions.map((sector, idx) => (
+            <React.Fragment key={idx}>
+              <Circle
+                center={[sector.latitude, sector.longitude]}
+                radius={6000}
+                pathOptions={{
+                  color: getRiskColor(sector.risk_category),
+                  fillColor: getRiskColor(sector.risk_category),
+                  fillOpacity: 0.22,
+                  weight: 1.5,
+                }}
+              />
+              <Marker
+                position={[sector.latitude, sector.longitude]}
+                icon={createRiskMarkerIcon(sector.risk_category, sector.calibrated_probability)}
+              >
+                <Popup>
+                  <div style={{ minWidth: '220px', padding: '4px' }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.80rem', color: '#F1F5F9', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '4px' }}>
+                      {sector.location_name}
+                    </div>
+                    <div style={{ marginTop: '6px', fontSize: '0.72rem', display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#94A3B8' }}>Calibrated Probability:</span>
+                      <strong style={{ color: getRiskColor(sector.risk_category) }}>
+                        {(sector.calibrated_probability * 100).toFixed(1)}%
+                      </strong>
+                    </div>
+                    <div style={{ fontSize: '0.72rem', display: 'flex', justifyContent: 'space-between', marginTop: '2px' }}>
+                      <span style={{ color: '#94A3B8' }}>Risk Classification:</span>
+                      <strong style={{ color: getRiskColor(sector.risk_category) }}>{sector.risk_category}</strong>
+                    </div>
+                    <div style={{ fontSize: '0.68rem', color: '#94A3B8', marginTop: '4px', borderTop: '1px solid rgba(255, 255, 255, 0.06)', paddingTop: '4px' }}>
+                      Model: {sector.model_version} ({sector.calibration_method})
+                    </div>
+                  </div>
+                </Popup>
+              </Marker>
+            </React.Fragment>
+          ))}
+
+          {/* NASA FIRMS Active Fire Observations */}
+          {showFireLayer && fireDetections.slice(0, 100).map((fire, idx) => (
+            <Marker
+              key={fire.id || idx}
+              position={[fire.latitude, fire.longitude]}
+              icon={fireDetectionMarkerIcon}
+            >
+              <Popup>
+                <div style={{ minWidth: '220px', padding: '4px' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.78rem', color: '#F87171', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', paddingBottom: '4px' }}>
+                    NASA FIRMS Thermal Anomaly
+                  </div>
+                  <div style={{ marginTop: '6px', fontSize: '0.72rem', color: '#E2E8F0' }}>
+                    <div>Sensor: <strong>{fire.instrument} ({fire.satellite})</strong></div>
+                    <div>Brightness: <strong>{fire.brightness} K</strong></div>
+                    <div>FRP: <strong>{fire.frp ? `${fire.frp} MW` : 'N/A'}</strong></div>
+                    <div>Acquisition: <strong>{fire.acq_date} {fire.acq_time} UTC</strong></div>
+                    <div>Confidence: <strong>{fire.confidence || 'Nominal'}</strong></div>
+                  </div>
+                  <div style={{ marginTop: '4px', fontSize: '0.65rem', color: '#94A3B8', fontStyle: 'italic' }}>
+                    * Spaceborne radiometer detection. Not a model forecast.
+                  </div>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+
+        {/* Floating Copernicus-style Scientific Map Legend */}
+        <div 
+          className="map-scientific-legend"
+          style={{
+            position: 'absolute',
+            bottom: '24px',
+            right: '20px',
+            zIndex: 1000,
+            backgroundColor: 'rgba(14, 20, 24, 0.92)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '4px',
+            padding: '12px 16px',
+            backdropFilter: 'blur(8px)',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.6)',
+            fontSize: '0.72rem',
+            color: '#F1F5F9',
+            maxWidth: '260px'
+          }}
+        >
+          <div style={{ fontWeight: 700, fontSize: '0.74rem', textTransform: 'uppercase', letterSpacing: '0.04em', color: '#10B981', marginBottom: '8px' }}>
+            Map Layers &amp; Classification
           </div>
-          <ul className="spec-list">
-            <li><strong>Input Resolution:</strong> Point-based Open-Meteo & Sentinel-2 telemetry.</li>
-            <li><strong>Inference Engine:</strong> Day 10 XGBoost Decision Tree ensemble.</li>
-            <li><strong>Probability Calibration:</strong> Day 12 Platt Sigmoid transformation.</li>
-            <li><strong>Local Explainability:</strong> Day 11 TreeSHAP feature contribution.</li>
-          </ul>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ width: '10px', height: '10px', backgroundColor: '#10B981', borderRadius: '2px' }} />
+              <span>Low Susceptibility (&lt; 25%)</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ width: '10px', height: '10px', backgroundColor: '#D97706', borderRadius: '2px' }} />
+              <span>Moderate Susceptibility (25 - 50%)</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ width: '10px', height: '10px', backgroundColor: '#EA580C', borderRadius: '2px' }} />
+              <span>High Susceptibility (50 - 75%)</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ width: '10px', height: '10px', backgroundColor: '#DC2626', borderRadius: '2px' }} />
+              <span>Very High Susceptibility (&gt; 75%)</span>
+            </div>
+            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '5px', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ width: '8px', height: '8px', backgroundColor: '#DC2626', borderRadius: '50%', border: '1px solid #FFF' }} />
+              <span>NASA FIRMS Radiometer Hotspot</span>
+            </div>
+          </div>
         </div>
 
-        <div className="spec-card">
-          <div className="spec-card-header">
-            <CheckCircle2 className="spec-icon green" />
-            <h4>Validated Risk Classification</h4>
-          </div>
-          <ul className="spec-list">
-            <li><strong>Low Risk (&lt;35%):</strong> Standard baseline vegetation & humidity.</li>
-            <li><strong>Moderate Risk (35-54%):</strong> Elevated temperature or mild drying.</li>
-            <li><strong>High Risk (55-74%):</strong> Low RH (&lt;25%) and high wind velocities.</li>
-            <li><strong>Very High Risk (≥75%):</strong> Extreme dryness, low NDVI, high heat.</li>
-          </ul>
-        </div>
-
-        <div className="spec-card">
-          <div className="spec-card-header">
-            <ShieldAlert className="spec-icon amber" />
-            <h4>Scientific Disclaimer & Guardrails</h4>
-          </div>
-          <p style={{ fontSize: '0.74rem', color: '#475569', lineHeight: 1.45 }}>
-            Model risk outputs represent statistical wildfire hazard likelihoods derived from historical satellite training distributions. 
-            They are not operational emergency alert triggers or guarantees of ignition. SHAP values explain local model behavior, not physical wildfire causality.
-          </p>
+        {/* Floating Sector Quick-Selector on Map */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '16px',
+            left: '60px',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            backgroundColor: 'rgba(14, 20, 24, 0.90)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            borderRadius: '4px',
+            padding: '6px 12px',
+            backdropFilter: 'blur(8px)'
+          }}
+        >
+          <Search size={12} style={{ color: '#94A3B8' }} />
+          <span style={{ fontSize: '0.70rem', color: '#94A3B8', fontWeight: 600 }}>Sectors:</span>
+          {MONITORED_SECTORS.map((s, sIdx) => (
+            <button
+              key={sIdx}
+              type="button"
+              onClick={() => handleLocationClick(s.latitude, s.longitude)}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                color: '#F1F5F9',
+                padding: '3px 8px',
+                borderRadius: '3px',
+                fontSize: '0.70rem',
+                fontWeight: 600
+              }}
+            >
+              {s.location_name ? s.location_name.split(' ')[0] : 'Sector'}
+            </button>
+          ))}
         </div>
       </div>
     </div>

@@ -5,12 +5,14 @@ import { OverviewPage } from './pages/OverviewPage';
 import { RiskMapPage } from './pages/RiskMapPage';
 import { WhatIfSimulatorPage } from './pages/WhatIfSimulatorPage';
 import { ForestHealthPage } from './pages/ForestHealthPage';
-import { HistoricalFiresPage } from './pages/HistoricalFiresPage';
+import { SatelliteObservationsPage } from './pages/SatelliteObservationsPage';
+import { TemporalAnalysisPage } from './pages/TemporalAnalysisPage';
+import { ForestKnowledgePage } from './pages/ForestKnowledgePage';
 import { DecisionSupportPage } from './pages/DecisionSupportPage';
 import { ModelAnalyticsPage } from './pages/ModelAnalyticsPage';
 import { DataSourcesPage } from './pages/DataSourcesPage';
 import { ModelInfoPage } from './pages/ModelInfoPage';
-import { SettingsPage } from './pages/PlaceholderPages';
+import { SettingsPage } from './pages/SettingsPage';
 import { fetchHealthStatus } from './services/apiService';
 import { fetchCurrentWeather, DEFAULT_WEATHER_LOCATION } from './services/weatherService';
 import { fetchVegetationData } from './services/vegetationService';
@@ -207,7 +209,6 @@ export function App() {
           />
         );
       case 'decision-support':
-      case 'alerts':
         return (
           <DecisionSupportPage 
             selectedLocation={selectedLocation}
@@ -215,6 +216,8 @@ export function App() {
             vegetationState={vegetationState}
           />
         );
+      case 'alerts':
+        return <ForestKnowledgePage />;
       case 'forest-health':
         return (
           <ForestHealthPage 
@@ -225,9 +228,8 @@ export function App() {
         );
       case 'satellite-observations':
       case 'historical-fires':
-      case 'temporal-analysis':
         return (
-          <HistoricalFiresPage 
+          <SatelliteObservationsPage 
             fireState={fireState}
             days={fireDays}
             source={fireSource}
@@ -235,6 +237,14 @@ export function App() {
             onChangeSource={setFireSource}
             onRetryFire={handleRetryFires}
             selectedLocation={selectedLocation}
+            vegetationState={vegetationState}
+          />
+        );
+      case 'temporal-analysis':
+        return (
+          <TemporalAnalysisPage 
+            selectedLocation={selectedLocation}
+            weatherState={weatherState}
           />
         );
       case 'model-analytics':

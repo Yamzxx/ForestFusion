@@ -12,7 +12,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         configure: (proxy) => {
-          proxy.on('error', (err, _req, res) => {
+          proxy.on('error', (_err, _req, res) => {
             // Gracefully handle backend offline state (ECONNREFUSED) without terminal log spam
             if ('writeHead' in res && !res.headersSent) {
               res.writeHead(503, {

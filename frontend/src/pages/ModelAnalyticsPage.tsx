@@ -4,8 +4,6 @@ import {
   Scale, 
   Sparkles, 
   Database, 
-  Layers, 
-  CheckCircle2, 
   Info,
   Sliders,
   Cpu

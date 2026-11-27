@@ -1,0 +1,672 @@
+/* ==========================================================================
+   ForestFusion - Decision Support Page (Visually Restored Operational Dashboard)
+   Preserves EXACTLY Four Sections:
+     1. Decision Service Standby (Photographic Forest Hero Panel)
+     2. Operational Priority Matrix (Rich Structured Sector Matrix with Thumbnails)
+     3. Wildfire Observation (Wildfire Imagery & Thermal Radiometry Telemetry)
+     4. Telemetry (Environmental & Satellite Remote Sensing Grid)
+   Palette:
+     Deep forest green: #17452F
+     Natural green:     #347653
+     White:             #FFFFFF
+     Background:        #F4F6F3
+     Charcoal:          #252B28
+     Wildfire accent:   #C65A32
+     Neutral border:    #DCE3DD
+   ========================================================================== */
+
+.dsp-operational-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 4px 0 36px 0;
+  color: #252B28;
+  font-family: 'Inter', 'Source Sans 3', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Common Section Container & Header Styling
+   -------------------------------------------------------------------------- */
+.dsp-op-section {
+  background-color: #FFFFFF;
+  border: 1px solid #DCE3DD;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  position: relative;
+}
+
+.dsp-op-header {
+  padding: 12px 18px;
+  border-bottom: 1px solid #DCE3DD;
+  background-color: #FAFCFA;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.dsp-op-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dsp-op-section-index {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  background-color: #17452F;
+  padding: 2px 7px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+}
+
+.dsp-op-title {
+  font-size: 0.94rem;
+  font-weight: 800;
+  color: #17452F;
+  margin: 0;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.dsp-op-header-meta {
+  font-size: 0.72rem;
+  color: #55635C;
+  font-weight: 600;
+}
+
+.dsp-op-body {
+  padding: 18px;
+}
+
+/* --------------------------------------------------------------------------
+   SECTION 1: DECISION SERVICE STANDBY (IMAGE-BACKED HERO PANEL)
+   -------------------------------------------------------------------------- */
+.dsp-section-standby {
+  position: relative;
+  min-height: 155px;
+  background-color: #17452F;
+  border: 1px solid #DCE3DD;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.dsp-standby-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url(/assets/images/monsoon_forest.jpg);
+  background-size: cover;
+  background-position: center 35%;
+  filter: saturate(1.1);
+}
+
+.dsp-standby-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(23, 69, 47, 0.94) 0%,
+    rgba(23, 69, 47, 0.88) 55%,
+    rgba(16, 52, 35, 0.82) 100%
+  );
+}
+
+.dsp-standby-content {
+  position: relative;
+  z-index: 2;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.dsp-standby-main {
+  max-width: 820px;
+}
+
+.dsp-standby-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.dsp-standby-index-tag {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 2px 7px;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.dsp-standby-sub-tag {
+  font-size: 0.72rem;
+  color: #D5E5DD;
+  font-weight: 500;
+}
+
+.dsp-standby-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.dsp-standby-desc {
+  font-size: 0.82rem;
+  color: #E2ECE6;
+  line-height: 1.45;
+  margin: 0 0 8px 0;
+}
+
+.dsp-standby-submsg {
+  font-size: 0.72rem;
+  color: #A3C9B6;
+  font-family: var(--font-mono, monospace);
+  margin: 0;
+}
+
+.dsp-standby-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.dsp-service-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 3px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.dsp-service-status-pill.online {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #FFFFFF;
+  border: 1px solid rgba(34, 197, 94, 0.5);
+}
+
+.dsp-service-status-pill.offline {
+  background-color: rgba(239, 68, 68, 0.25);
+  color: #FFFFFF;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+}
+
+.dsp-service-status-pill.standby {
+  background-color: rgba(245, 158, 11, 0.25);
+  color: #FFFFFF;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+}
+
+.dsp-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dsp-status-dot.online {
+  background-color: #22C55E;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.35);
+}
+
+.dsp-status-dot.offline {
+  background-color: #EF4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.35);
+}
+
+.dsp-status-dot.standby {
+  background-color: #F59E0B;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
+}
+
+.dsp-btn-retry {
+  background-color: #FFFFFF;
+  color: #17452F;
+  border: 1px solid #DCE3DD;
+  border-radius: 3px;
+  padding: 7px 16px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.dsp-btn-retry:hover:not(:disabled) {
+  background-color: #F4F6F3;
+  color: #103423;
+  border-color: #BCC7C1;
+}
+
+.dsp-btn-retry:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   SECTION 2: OPERATIONAL PRIORITY MATRIX (STRUCTURED WITH THUMBNAILS)
+   -------------------------------------------------------------------------- */
+.dsp-matrix-table-wrap {
+  overflow-x: auto;
+}
+
+.dsp-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  text-align: left;
+}
+
+.dsp-matrix-table th {
+  background-color: #F4F6F3;
+  color: #55635C;
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 10px 14px;
+  border-bottom: 1px solid #DCE3DD;
+  white-space: nowrap;
+}
+
+.dsp-matrix-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #E8ECE9;
+  color: #252B28;
+  vertical-align: middle;
+}
+
+.dsp-matrix-row {
+  transition: background-color 0.12s ease;
+  cursor: pointer;
+}
+
+.dsp-matrix-row:hover {
+  background-color: #F8FAF9;
+}
+
+.dsp-matrix-row.selected {
+  background-color: #EBF3EF;
+  border-left: 3.5px solid #17452F;
+}
+
+.dsp-sector-thumb-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dsp-matrix-thumbnail {
+  width: 48px;
+  height: 36px;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid #DCE3DD;
+  background-color: #E2E8F0;
+  flex-shrink: 0;
+}
+
+.dsp-matrix-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.dsp-sector-title-cell {
+  font-weight: 700;
+  color: #17452F;
+  font-size: 0.84rem;
+}
+
+.dsp-sector-sub-cell {
+  font-size: 0.68rem;
+  color: #55635C;
+  margin-top: 1px;
+}
+
+.dsp-risk-pill {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.dsp-risk-pill.very-high,
+.dsp-risk-pill.high {
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
+}
+
+.dsp-risk-pill.moderate {
+  background-color: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+.dsp-risk-pill.low {
+  background-color: #EBF3EF;
+  color: #17452F;
+  border: 1px solid #C2DBCD;
+}
+
+.dsp-prob-cell-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 90px;
+}
+
+.dsp-prob-val {
+  font-family: var(--font-mono, monospace);
+  font-weight: 800;
+  font-size: 0.88rem;
+}
+
+.dsp-prob-bar-track {
+  height: 4px;
+  background-color: #E2E8F0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.dsp-prob-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.dsp-priority-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.dsp-priority-tag.p1 {
+  color: #B91C1C;
+}
+
+.dsp-priority-tag.p2 {
+  color: #C65A32;
+}
+
+.dsp-priority-tag.p3 {
+  color: #B45309;
+}
+
+.dsp-priority-tag.routine {
+  color: #17452F;
+}
+
+.dsp-time-cell {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  color: #55635C;
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   SECTION 3: WILDFIRE OBSERVATION (AERIAL WILDFIRE IMAGERY + DATA)
+   -------------------------------------------------------------------------- */
+.dsp-wildfire-obs-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+@media (max-width: 920px) {
+  .dsp-wildfire-obs-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dsp-obs-photo-card {
+  position: relative;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid #DCE3DD;
+  background-color: #1F2421;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dsp-obs-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.dsp-obs-photo-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 12px;
+  background: linear-gradient(0deg, rgba(16, 25, 22, 0.94) 0%, rgba(16, 25, 22, 0.5) 75%, transparent 100%);
+  color: #FFFFFF;
+}
+
+.dsp-obs-photo-tag {
+  font-size: 0.64rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #FFB396;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.dsp-obs-photo-caption {
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.dsp-obs-data-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.dsp-observation-summary-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.dsp-obs-stat-card {
+  background-color: #F8FAF9;
+  border: 1px solid #DCE3DD;
+  border-radius: 3px;
+  padding: 8px 12px;
+}
+
+.dsp-obs-stat-label {
+  font-size: 0.65rem;
+  color: #55635C;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: block;
+}
+
+.dsp-obs-stat-val {
+  font-size: 0.96rem;
+  color: #17452F;
+  font-weight: 800;
+  font-family: var(--font-mono, monospace);
+  margin-top: 2px;
+  display: block;
+}
+
+.dsp-observation-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #E8ECE9;
+  border-radius: 3px;
+}
+
+.dsp-obs-empty-msg {
+  padding: 24px;
+  text-align: center;
+  color: #55635C;
+  font-size: 0.78rem;
+  background-color: #FAFCFA;
+}
+
+/* --------------------------------------------------------------------------
+   SECTION 4: TELEMETRY (SUBTLE ENVIRONMENTAL IMAGERY & STRUCTURED METRICS)
+   -------------------------------------------------------------------------- */
+.dsp-telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.dsp-telemetry-cell {
+  background-color: #FFFFFF;
+  border: 1px solid #DCE3DD;
+  border-radius: 3px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.dsp-telemetry-cell::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #17452F;
+}
+
+.dsp-telemetry-cell.wildfire-accent::before {
+  background-color: #C65A32;
+}
+
+.dsp-tel-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dsp-tel-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #55635C;
+}
+
+.dsp-tel-status-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+}
+
+.dsp-tel-status-badge.live {
+  background-color: #F0FDF4;
+  color: #15803D;
+  border: 1px solid #BBF7D0;
+}
+
+.dsp-tel-status-badge.stale {
+  background-color: #FFFBEB;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+
+.dsp-tel-status-badge.unavailable {
+  background-color: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #CBD5E1;
+}
+
+.dsp-tel-value {
+  font-family: var(--font-mono, monospace);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #17452F;
+  margin-top: 2px;
+}
+
+.dsp-tel-meta {
+  font-size: 0.66rem;
+  color: #55635C;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  border-top: 1px solid #F1F5F9;
+  padding-top: 4px;
+}
+
+.dsp-telemetry-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 14px;
+  background-color: #F8FAF9;
+  border: 1px solid #DCE3DD;
+  border-radius: 3px;
+  font-size: 0.72rem;
+  color: #55635C;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Empty State Notice */
+.dsp-empty-state-notice {
+  padding: 28px;
+  text-align: center;
+  color: #55635C;
+  font-size: 0.8rem;
+  background-color: #FAFCFA;
+  border: 1px dashed #DCE3DD;
+  border-radius: 3px;
+}

@@ -1,4 +1,3 @@
-import type { BaselineFeaturesInput } from './mlModel';
 
 export interface XGBoostHyperparameters {
   n_estimators: number;

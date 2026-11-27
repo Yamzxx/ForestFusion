@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Cpu, 
-  ShieldAlert, 
   Activity, 
-  HelpCircle, 
   RefreshCw, 
   Info, 
   BarChart2, 
@@ -110,10 +108,10 @@ export const BaselineModelCard: React.FC<BaselineModelCardProps> = ({
       {/* Main Grid: Left Interactive Sliders / Right Model Output */}
       <div className="section-grid-two-col" style={{ marginTop: '16px' }}>
         {/* Left Column: Input Sliders & Parameter Controls */}
-        <div className="spec-card" style={{ backgroundColor: '#ffffff' }}>
-          <div className="spec-card-header">
-            <Sliders className="spec-icon" style={{ color: '#0284c7' }} />
-            <h4>Environmental Feature Inputs (Baseline Inference)</h4>
+        <div className="spec-card" style={{ backgroundColor: '#FFFFFF', border: '1px solid #D5DDD8', boxShadow: 'var(--shadow-sm)' }}>
+          <div className="spec-card-header" style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
+            <Sliders className="spec-icon" style={{ color: '#17452F' }} />
+            <h4 style={{ color: '#17452F' }}>Environmental Feature Inputs (Baseline Inference)</h4>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}>
@@ -121,7 +119,7 @@ export const BaselineModelCard: React.FC<BaselineModelCardProps> = ({
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600 }}>
                 <span>Air Temperature (2m):</span>
-                <span>{inputs.temperature_2m.toFixed(1)} °C</span>
+                <span style={{ color: '#17452F' }}>{inputs.temperature_2m.toFixed(1)} °C</span>
               </div>
               <input
                 type="range"
@@ -130,7 +128,7 @@ export const BaselineModelCard: React.FC<BaselineModelCardProps> = ({
                 step="0.5"
                 value={inputs.temperature_2m}
                 onChange={(e) => handleInputChange('temperature_2m', parseFloat(e.target.value))}
-                style={{ width: '100%', accentColor: '#ea580c' }}
+                style={{ width: '100%', accentColor: '#C25E00' }}
               />
             </div>
 
@@ -138,7 +136,7 @@ export const BaselineModelCard: React.FC<BaselineModelCardProps> = ({
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600 }}>
                 <span>Relative Humidity (2m):</span>
-                <span>{inputs.relative_humidity_2m.toFixed(0)} %</span>
+                <span style={{ color: '#17452F' }}>{inputs.relative_humidity_2m.toFixed(0)} %</span>
               </div>
               <input
                 type="range"
@@ -147,7 +145,7 @@ export const BaselineModelCard: React.FC<BaselineModelCardProps> = ({
                 step="1"
                 value={inputs.relative_humidity_2m}
                 onChange={(e) => handleInputChange('relative_humidity_2m', parseFloat(e.target.value))}
-                style={{ width: '100%', accentColor: '#0284c7' }}
+                style={{ width: '100%', accentColor: '#0284C7' }}
               />
             </div>
 
@@ -155,7 +153,7 @@ export const BaselineModelCard: React.FC<BaselineModelCardProps> = ({
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600 }}>
                 <span>Wind Speed (10m):</span>
-                <span>{inputs.wind_speed_10m.toFixed(1)} km/h</span>
+                <span style={{ color: '#17452F' }}>{inputs.wind_speed_10m.toFixed(1)} km/h</span>
               </div>
               <input
                 type="range"
@@ -164,7 +162,7 @@ export const BaselineModelCard: React.FC<BaselineModelCardProps> = ({
                 step="1"
                 value={inputs.wind_speed_10m}
                 onChange={(e) => handleInputChange('wind_speed_10m', parseFloat(e.target.value))}
-                style={{ width: '100%', accentColor: '#16a34a' }}
+                style={{ width: '100%', accentColor: '#17452F' }}
               />
             </div>
 
@@ -172,7 +170,7 @@ export const BaselineModelCard: React.FC<BaselineModelCardProps> = ({
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', fontWeight: 600 }}>
                 <span>Vegetation Vigor (NDVI):</span>
-                <span>{inputs.ndvi.toFixed(2)}</span>
+                <span style={{ color: '#17452F' }}>{inputs.ndvi.toFixed(2)}</span>
               </div>
               <input
                 type="range"
@@ -181,17 +179,17 @@ export const BaselineModelCard: React.FC<BaselineModelCardProps> = ({
                 step="0.02"
                 value={inputs.ndvi}
                 onChange={(e) => handleInputChange('ndvi', parseFloat(e.target.value))}
-                style={{ width: '100%', accentColor: '#15803d' }}
+                style={{ width: '100%', accentColor: '#26734B' }}
               />
             </div>
           </div>
         </div>
 
         {/* Right Column: Prediction & Log-Odds Risk Output */}
-        <div className="spec-card" style={{ backgroundColor: '#ffffff' }}>
-          <div className="spec-card-header">
+        <div className="spec-card" style={{ backgroundColor: '#FFFFFF', border: '1px solid #D5DDD8', boxShadow: 'var(--shadow-sm)' }}>
+          <div className="spec-card-header" style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '10px' }}>
             <Activity className="spec-icon" style={{ color: getRiskColor(prediction?.risk_level) }} />
-            <h4>Baseline Risk Probability & Output</h4>
+            <h4 style={{ color: '#17452F' }}>Baseline Risk Probability & Output</h4>
           </div>
 
           {prediction && (
