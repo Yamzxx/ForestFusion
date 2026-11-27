@@ -245,10 +245,18 @@ class SpatiotemporalDatasetBuilder:
         # 6. Write output CSV
         output_csv = self.config.dataset_output_dir / "amrabad_2024_dataset.csv"
         fieldnames = list(dataset_rows[0].keys())
-        with open(output_csv, "w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(dataset_rows)
+        try:
+            with open(output_csv, "w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(dataset_rows)
+        except PermissionError:
+            output_csv = self.config.dataset_output_dir / "amrabad_2024_dataset_with_firms.csv"
+            logger.warning(f"Primary CSV is open/locked; writing instead to: {output_csv}")
+            with open(output_csv, "w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(dataset_rows)
 
         # 7. Write dataset provenance manifest
         manifest = {
