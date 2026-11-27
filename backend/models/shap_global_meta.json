@@ -1,0 +1,46 @@
+{
+  "model_name": "XGBoost Classifier v1.0",
+  "method": "TreeSHAP (Exact Path-Dependent Shapley Attribution)",
+  "base_value": -0.6,
+  "base_probability": 0.3543,
+  "evaluation_samples": 200,
+  "global_importances": [
+    {
+      "feature_name": "relative_humidity_2m",
+      "mean_abs_shap_value": 0.485,
+      "rank": 1,
+      "relative_importance": 34.5
+    },
+    {
+      "feature_name": "temperature_2m",
+      "mean_abs_shap_value": 0.392,
+      "rank": 2,
+      "relative_importance": 27.9
+    },
+    {
+      "feature_name": "wind_speed_10m",
+      "mean_abs_shap_value": 0.285,
+      "rank": 3,
+      "relative_importance": 20.3
+    },
+    {
+      "feature_name": "ndmi",
+      "mean_abs_shap_value": 0.145,
+      "rank": 4,
+      "relative_importance": 10.3
+    },
+    {
+      "feature_name": "ndvi",
+      "mean_abs_shap_value": 0.075,
+      "rank": 5,
+      "relative_importance": 5.3
+    },
+    {
+      "feature_name": "month",
+      "mean_abs_shap_value": 0.024,
+      "rank": 6,
+      "relative_importance": 1.7
+    }
+  ],
+  "cached_timestamp": "2026-11-27 08:46:16 UTC"
+}

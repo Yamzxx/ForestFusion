@@ -1,0 +1,9 @@
+# Python libraries required for Step 3: Offline Dataset Audit, Model Training & Evaluation
+# Install manually when ready: pip install -r research/modeling/requirements.txt
+
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+xgboost>=2.0.0
+shap>=0.44.0
+joblib>=1.3.0
