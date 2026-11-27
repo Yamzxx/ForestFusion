@@ -1,0 +1,94 @@
+{
+  "generated_at_utc": "2026-11-27T17:36:24.266410+00:00",
+  "study_area": {
+    "name": "Amrabad Tiger Reserve",
+    "state": "Telangana",
+    "country": "India",
+    "landscape": "Nallamala Forest Range",
+    "approx_bbox_wgs84": {
+      "min_lon": 78.7,
+      "min_lat": 16.1,
+      "max_lon": 79.4,
+      "max_lat": 16.6
+    },
+    "expected_utm_epsg": 32644
+  },
+  "grid_cell_size_m": 1000.0,
+  "min_valid_pixel_ratio": 0.5,
+  "weather_lookback_days": 7,
+  "firms_lookahead_days": 5,
+  "firms_archive_available": false,
+  "scientific_notes": [
+    "firms_has_detection reflects satellite thermal anomalies, NOT exhaustive ground-truth wildfire labels.",
+    "Grid cells with < min_valid_pixel_ratio unmasked Sentinel-2 pixels were excluded."
+  ],
+  "total_rows": 560,
+  "columns": [
+    "scene_id",
+    "acquisition_date",
+    "cell_id",
+    "centroid_lat",
+    "centroid_lon",
+    "ndvi_valid_pixel_ratio",
+    "ndvi_is_usable",
+    "ndvi_mean",
+    "ndvi_std",
+    "ndvi_p10",
+    "ndvi_p50",
+    "ndvi_p90",
+    "ndmi_valid_pixel_ratio",
+    "ndmi_is_usable",
+    "ndmi_mean",
+    "ndmi_std",
+    "ndmi_p10",
+    "ndmi_p50",
+    "ndmi_p90",
+    "nbr_valid_pixel_ratio",
+    "nbr_is_usable",
+    "nbr_mean",
+    "nbr_std",
+    "nbr_p10",
+    "nbr_p50",
+    "nbr_p90",
+    "weather_temp_max_c",
+    "weather_temp_mean_c",
+    "weather_rh_min_pct",
+    "weather_rh_mean_pct",
+    "weather_wind_max_kmh",
+    "weather_precip_day_mm",
+    "weather_precip_sum_7d_mm",
+    "weather_temp_max_7d_avg_c",
+    "weather_rh_min_7d_avg_pct",
+    "weather_dry_days_7d",
+    "firms_detection_count",
+    "firms_has_detection",
+    "firms_max_frp_mw"
+  ],
+  "scenes_included": [
+    {
+      "scene_id": "scene_2024-03-23",
+      "acquisition_date": "2024-03-23",
+      "usable_grid_cells": 196,
+      "weather_source": "open_meteo_archive_api"
+    },
+    {
+      "scene_id": "scene_2024-04-22",
+      "acquisition_date": "2024-04-22",
+      "usable_grid_cells": 84,
+      "weather_source": "open_meteo_archive_api"
+    },
+    {
+      "scene_id": "scene_2024-05-02",
+      "acquisition_date": "2024-05-02",
+      "usable_grid_cells": 84,
+      "weather_source": "open_meteo_archive_api"
+    },
+    {
+      "scene_id": "scene_2024-06-16",
+      "acquisition_date": "2024-06-16",
+      "usable_grid_cells": 196,
+      "weather_source": "open_meteo_archive_api"
+    }
+  ],
+  "output_csv": "C:\\Users\\Yamini\\ForestFusion\\data\\processed\\dataset\\amrabad_2024_dataset.csv"
+}

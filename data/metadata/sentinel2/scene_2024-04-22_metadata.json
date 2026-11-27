@@ -1,0 +1,166 @@
+{
+  "scene_id": "scene_2024-04-22",
+  "study_area": {
+    "name": "Amrabad Tiger Reserve",
+    "state": "Telangana",
+    "country": "India",
+    "landscape": "Nallamala Forest Range",
+    "approx_bbox_wgs84": {
+      "min_lon": 78.7,
+      "min_lat": 16.1,
+      "max_lon": 79.4,
+      "max_lat": 16.6
+    },
+    "expected_utm_epsg": 32644
+  },
+  "processed_timestamp_utc": "2026-11-27T17:35:40.128437+00:00",
+  "pipeline_version": "1.0.0",
+  "spatial_reference": {
+    "crs": "EPSG:32644",
+    "crs_epsg": 32644,
+    "grid_resolution_meters": 10.0,
+    "raster_dimensions": {
+      "width": 1296,
+      "height": 570
+    },
+    "bounds_extent": [
+      275520.0,
+      1802010.0,
+      288480.0,
+      1807710.0
+    ],
+    "affine_transform": [
+      10.0,
+      0.0,
+      275520.0,
+      0.0,
+      -10.0,
+      1807710.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  "source_files": {
+    "B04": "C:\\Users\\Yamini\\ForestFusion\\data\\raw\\sentinel2\\scene_2024-04-22\\B04.tif",
+    "B08": "C:\\Users\\Yamini\\ForestFusion\\data\\raw\\sentinel2\\scene_2024-04-22\\B08.tif",
+    "B11": "C:\\Users\\Yamini\\ForestFusion\\data\\raw\\sentinel2\\scene_2024-04-22\\B11.tif",
+    "B12": "C:\\Users\\Yamini\\ForestFusion\\data\\raw\\sentinel2\\scene_2024-04-22\\B12.tif",
+    "SCL": "C:\\Users\\Yamini\\ForestFusion\\data\\raw\\sentinel2\\scene_2024-04-22\\SCL.tif"
+  },
+  "reflectance_calibration": {
+    "quantification_value": 10000.0,
+    "boa_add_offset": -1000.0,
+    "clamped_to_physical": true,
+    "formula": "Reflectance = (DN + BOA_ADD_OFFSET) / QUANTIFICATION_VALUE"
+  },
+  "quality_masking_policy": {
+    "layer": "Scene Classification Layer (SCL)",
+    "retained_valid_classes": [
+      4,
+      5
+    ],
+    "retained_class_names": [
+      "VEGETATION (4)",
+      "NOT_VEGETATED (5)"
+    ],
+    "excluded_classes_policy": "Masked out classes 0 (No Data), 1 (Defective), 2 (Dark Area), 3 (Cloud Shadow), 6 (Water), 7 (Unclassified), 8 (Cloud Med Prob), 9 (Cloud High Prob), 10 (Thin Cirrus), 11 (Snow/Ice)",
+    "mask_statistics": {
+      "total_pixels": 738720,
+      "valid_pixels": 726006,
+      "valid_percentage": 98.28,
+      "class_breakdown": {
+        "NO_DATA": {
+          "code": 0,
+          "pixel_count": 1296,
+          "percentage": 0.18,
+          "is_valid": false
+        },
+        "DARK_AREA_PIXELS": {
+          "code": 2,
+          "pixel_count": 132,
+          "percentage": 0.02,
+          "is_valid": false
+        },
+        "VEGETATION": {
+          "code": 4,
+          "pixel_count": 3184,
+          "percentage": 0.43,
+          "is_valid": true
+        },
+        "NOT_VEGETATED": {
+          "code": 5,
+          "pixel_count": 722822,
+          "percentage": 97.85,
+          "is_valid": true
+        },
+        "WATER": {
+          "code": 6,
+          "pixel_count": 11222,
+          "percentage": 1.52,
+          "is_valid": false
+        },
+        "UNCLASSIFIED": {
+          "code": 7,
+          "pixel_count": 64,
+          "percentage": 0.01,
+          "is_valid": false
+        }
+      }
+    }
+  },
+  "derived_indices": {
+    "NDVI": {
+      "formula": "(B08 - B04) / (B08 + B04)",
+      "file_path": "C:\\Users\\Yamini\\ForestFusion\\data\\processed\\sentinel2\\scene_2024-04-22\\NDVI.tif",
+      "statistics": {
+        "valid_pixel_count": 725245,
+        "total_pixel_count": 738720,
+        "valid_percentage": 98.18,
+        "mean": 0.4847,
+        "std": 0.1753,
+        "min": -1.0,
+        "max": 1.0,
+        "p25": 0.3673,
+        "median": 0.447,
+        "p75": 0.555
+      }
+    },
+    "NDMI": {
+      "formula": "(B08 - B11) / (B08 + B11)",
+      "file_path": "C:\\Users\\Yamini\\ForestFusion\\data\\processed\\sentinel2\\scene_2024-04-22\\NDMI.tif",
+      "statistics": {
+        "valid_pixel_count": 725782,
+        "total_pixel_count": 738720,
+        "valid_percentage": 98.25,
+        "mean": -0.3863,
+        "std": 0.1122,
+        "min": -1.0,
+        "max": 0.637,
+        "p25": -0.4565,
+        "median": -0.3899,
+        "p75": -0.3227
+      }
+    },
+    "NBR": {
+      "formula": "(B08 - B12) / (B08 + B12)",
+      "file_path": "C:\\Users\\Yamini\\ForestFusion\\data\\processed\\sentinel2\\scene_2024-04-22\\NBR.tif",
+      "statistics": {
+        "valid_pixel_count": 725743,
+        "total_pixel_count": 738720,
+        "valid_percentage": 98.24,
+        "mean": -0.2629,
+        "std": 0.1589,
+        "min": -1.0,
+        "max": 1.0,
+        "p25": -0.3696,
+        "median": -0.262,
+        "p75": -0.1714
+      }
+    }
+  },
+  "intermediate_layers": {
+    "interim_directory": "C:\\Users\\Yamini\\ForestFusion\\data\\interim\\sentinel2\\scene_2024-04-22",
+    "mask_file": "C:\\Users\\Yamini\\ForestFusion\\data\\interim\\sentinel2\\scene_2024-04-22\\valid_mask.tif"
+  }
+}
